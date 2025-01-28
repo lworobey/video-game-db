@@ -1,0 +1,129 @@
+/* Header component specific styles */
+.header {
+    display: flex;
+    flex-direction: column; /* Stack h1 and search bar vertically */
+    justify-content: flex-start;
+    padding: 16px;
+    background-color: #f8f8f8;
+  }
+  
+  h1 {
+    margin: 0;
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 16px; /* Space below the heading */
+    text-align: left; /* Left justify the heading */
+  }
+  
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .search-container {
+    display: flex;
+    align-items: center;
+    width: 50%; /* Reduced from 100% to make search bar smaller */
+    margin-bottom: 16px;
+    margin-right: auto;
+  }
+  
+  .search-input {
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-right: 8px;
+    flex-grow: 1;
+    max-width: 300px; /* Set maximum width to prevent excessive stretching */
+    font-size: 0.9rem; /* Slightly smaller font size */
+  }
+  
+  .search-button {
+    background-color: #fff; /* White background to match input */
+    color: #333; /* Dark text color for contrast */
+    border: 1px solid #ccc; /* Same border as the search input */
+    border-radius: 4px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 0.9rem; /* Same font size as search input */
+    transition: background-color 0.2s, border-color 0.2s;
+  }
+  
+  .search-button:hover {
+    background-color: #f0f0f0; /* Light grey on hover */
+    border-color: #a892ee; /* Add a slight purple border on hover */
+  }
+  
+  .login-container {
+    margin-left: auto;
+  }
+  
+  .login-button {
+    background-color: #a892ee;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    color: white;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s;
+  }
+  
+  .login-button:hover {
+    background-color: #9370db;
+  }
+
+  .profile-container {
+    margin-left: 16px;
+    position: relative;
+  }
+
+  .profile-button {
+    background-color: #a892ee;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    color: white;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s;
+  }
+
+  .profile-button:hover {
+    background-color: #9370db;
+  }
+
+  .dropdown {
+    position: relative;
+    display: inline-block;
+  }
+
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    border-radius: 4px;
+    z-index: 1;
+    right: 0;
+  }
+
+  .dropdown:hover .dropdown-content {
+    display: block;
+  }
+
+  .dropdown-content a {
+    color: #333;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+  }
+
+  .dropdown-content a:hover {
+    background-color: #f0f0f0;
+    border-radius: 4px;
+  }
+  
