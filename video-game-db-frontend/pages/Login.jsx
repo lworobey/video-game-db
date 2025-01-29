@@ -1,4 +1,5 @@
 import './login.css';
+import { NavLink } from "react-router";
 
 const Login = () => {
 return(
@@ -15,9 +16,7 @@ return(
       className="password-input"
     />
           <div className="login-container">
-            <button type="button" className="login-button">
-              Login
-            </button>
+            <NavLink to="." ></NavLink>
           </div>
 
     </div>
