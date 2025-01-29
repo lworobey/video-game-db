@@ -1,5 +1,6 @@
+import Login from '../../pages/Login';
 import './header.css';
-import {useNavigate} from "react-router-dom";
+import { NavLink, Route, Routes } from "react-router";
 
 const Header = () => {
     return (
@@ -29,9 +30,9 @@ const Header = () => {
 
           
           <div className="login-container">
-            <button type="button" className="login-button">
+            <NavLink to="/login" className="login-button">
               Login
-            </button>
+            </NavLink>
           </div>
         </nav>
       </header>
