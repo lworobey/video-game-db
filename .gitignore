@@ -7,12 +7,14 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+**/node_modules
 node_modules
 dist
 dist-ssr
 *.local
 
 .env
+./video-game-db-backend/auth-service/.env
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
