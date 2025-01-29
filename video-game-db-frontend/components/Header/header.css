@@ -1,7 +1,6 @@
-/* Header component specific styles */
 .header {
     display: flex;
-    flex-direction: column; /* Stack h1 and search bar vertically */
+    flex-direction: column;
     justify-content: flex-start;
     padding: 16px;
     background-color: #f8f8f8;
@@ -11,8 +10,8 @@
     margin: 0;
     font-size: 2rem;
     color: #333;
-    margin-bottom: 16px; /* Space below the heading */
-    text-align: left; /* Left justify the heading */
+    margin-bottom: 16px;
+    text-align: left;
   }
   
   nav {
@@ -25,7 +24,7 @@
   .search-container {
     display: flex;
     align-items: center;
-    width: 50%; /* Reduced from 100% to make search bar smaller */
+    width: 50%;
     margin-bottom: 16px;
     margin-right: auto;
   }
@@ -36,24 +35,24 @@
     border-radius: 4px;
     margin-right: 8px;
     flex-grow: 1;
-    max-width: 300px; /* Set maximum width to prevent excessive stretching */
-    font-size: 0.9rem; /* Slightly smaller font size */
+    max-width: 300px;
+    font-size: 0.9rem;
   }
   
   .search-button {
-    background-color: #fff; /* White background to match input */
-    color: #333; /* Dark text color for contrast */
-    border: 1px solid #ccc; /* Same border as the search input */
+    background-color: #fff;
+    color: #333;
+    border: 1px solid #ccc;
     border-radius: 4px;
     padding: 6px 12px;
     cursor: pointer;
-    font-size: 0.9rem; /* Same font size as search input */
+    font-size: 0.9rem;
     transition: background-color 0.2s, border-color 0.2s;
   }
   
   .search-button:hover {
-    background-color: #f0f0f0; /* Light grey on hover */
-    border-color: #a892ee; /* Add a slight purple border on hover */
+    background-color: #f0f0f0;
+    border-color: #a892ee;
   }
   
   .login-container {
@@ -126,4 +125,3 @@
     background-color: #f0f0f0;
     border-radius: 4px;
   }
-  
