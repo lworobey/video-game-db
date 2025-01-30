@@ -18,17 +18,14 @@ const Header = () => {
               Search
             </button>
           </div>
-          <div className="profile-container">
+          <div className="collection-container">
             <div className="dropdown">
-              <NavLink to="/profile">
-              <button type="button" className="profile-button">
-                Profile
+              <NavLink to="/collection">
+              <button type="button" className="collection-button">
+                Collection
               </button>
               </NavLink>
-              <div className="dropdown-content">
-                <a href="#">Library</a>
               </div>
-            </div>
           </div>
 
           
