@@ -1,6 +1,7 @@
 
 import './header.css';
 import { NavLink, Route, Routes } from "react-router";
+import { FaDiscord } from "react-icons/fa";
 
 const Header = () => {
     return (
@@ -31,7 +32,7 @@ const Header = () => {
           
           <div className="login-container">
             <NavLink to="/login" className="login-button">
-              Login
+            Login with Discord  <FaDiscord style={{transform: 'translateY(2.5px)'}} />
             </NavLink>
           </div>
         </nav>
