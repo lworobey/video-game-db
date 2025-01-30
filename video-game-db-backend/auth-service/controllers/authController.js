@@ -15,11 +15,9 @@ const authController = {
 
     // Handle OAuth callback and exchange code for access token
     callback: async (req, res) => {
-        const code = req.query.code; // Get the code from the query parameters
-        if (!code) {
-            return res.status(400).json({ error: 'No code provided' });
-        }
-
+        const code = req.query.code;
+        if (!code) return res.status(400).json({ error: 'No code provided' });
+    
         try {
             const tokenResponse = await axios.post(
                 'https://discord.com/api/oauth2/token',
@@ -30,21 +28,30 @@ const authController = {
                     code: code,
                     redirect_uri: process.env.DISCORD_REDIRECT_URI
                 }),
-                {
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-                }
+                { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
             );
-
-            const { access_token } = tokenResponse.data; // Extract the access token
-
-            // Fetch user details from Discord API
+    
+            const { access_token } = tokenResponse.data;
             const userResponse = await axios.get('https://discord.com/api/users/@me', {
                 headers: { Authorization: `Bearer ${access_token}` }
             });
-
-            const userData = userResponse.data; // Extract user info
-            res.json({ message: 'Authentication successful', user: userData });
-
+    
+            const userData = userResponse.data;
+    
+            // Check if user already exists in MongoDB
+            let user = await User.findOne({ discordId: userData.id });
+            if (!user) {
+                user = new User({
+                    discordId: userData.id,
+                    username: userData.username,
+                    email: userData.email || '',
+                    avatar: userData.avatar
+                });
+                await user.save();
+            }
+    
+            res.json({ message: 'Authentication successful', user });
+    
         } catch (error) {
             console.error('OAuth callback error:', error.response?.data || error.message);
             res.status(500).json({ error: 'Failed to authenticate with Discord' });
