@@ -1,4 +1,5 @@
 import './login.css';
+import { NavLink } from "react-router";
 
 const Login = () => {
 return(
@@ -10,7 +11,6 @@ return(
             </button>
           </div>
 
-    </div>
-    );
+    </div>);
 };
 export default Login
