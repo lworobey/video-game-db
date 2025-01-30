@@ -1,8 +1,8 @@
-import './profile.css';
+import './collection.css';
 import { useState } from 'react';
 import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa'; 
 
-const Profile = () => {
+const Collection = () => {
   const [games, setGames] = useState([]);
   const [editMode, setEditMode] = useState({});
   const [showAddGameForm, setShowAddGameForm] = useState(false);
@@ -16,7 +16,7 @@ const Profile = () => {
     params.append("client_id", "jcfuukswakoquf5haw7f0j0bcyqn68");
     params.append("client_secret", "cqa6e00r17a2cm33rn2of1mlqed95z");
     params.append("grant_type", "client_credentials");
-
+s
     const response = await fetch(url, {
       method: "POST",
       body: params,
@@ -131,7 +131,7 @@ const Profile = () => {
   const sortedGames = sortGames(games, sortBy);
 
   return (
-    <div className="profile container">
+    <div className="collection container">
       <h1>My Game Library</h1>
       <button className="add-game-button" onClick={() => setShowAddGameForm(!showAddGameForm)}>
         <FaPlus /> Add Game
@@ -267,4 +267,4 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default Collection;
