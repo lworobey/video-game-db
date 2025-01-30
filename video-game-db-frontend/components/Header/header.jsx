@@ -1,4 +1,4 @@
-import Login from '../../pages/Login';
+
 import './header.css';
 import { NavLink, Route, Routes } from "react-router";
 import { FaDiscord } from "react-icons/fa";
