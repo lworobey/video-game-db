@@ -19,9 +19,11 @@ const Header = () => {
           </div>
           <div className="profile-container">
             <div className="dropdown">
+              <NavLink to="/profile">
               <button type="button" className="profile-button">
                 Profile
               </button>
+              </NavLink>
               <div className="dropdown-content">
                 <a href="#">Library</a>
               </div>
