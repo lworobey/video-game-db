@@ -1,127 +1,128 @@
 .header {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    padding: 16px;
-    background-color: #f8f8f8;
-  }
-  
-  h1 {
-    margin: 0;
-    font-size: 2rem;
-    color: #333;
-    margin-bottom: 16px;
-    text-align: left;
-  }
-  
-  nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-  }
-  
-  .search-container {
-    display: flex;
-    align-items: center;
-    width: 50%;
-    margin-bottom: 16px;
-    margin-right: auto;
-  }
-  
-  .search-input {
-    padding: 6px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    margin-right: 8px;
-    flex-grow: 1;
-    max-width: 300px;
-    font-size: 0.9rem;
-  }
-  
-  .search-button {
-    background-color: #fff;
-    color: #333;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 6px 12px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: background-color 0.2s, border-color 0.2s;
-  }
-  
-  .search-button:hover {
-    background-color: #f0f0f0;
-    border-color: #a892ee;
-  }
-  
-  .login-container {
-    margin-left: auto;
-  }
-  
-  .login-button {
-    background-color: #a892ee;
-    border: none;
-    border-radius: 4px;
-    padding: 8px 16px;
-    color: white;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.2s;
-  }
-  
-  .login-button:hover {
-    background-color: #9370db;
-  }
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 16px;
+  background-color: #f8f8f8;
+  position: relative; /* Ensures proper layout for absolute positioning */
+}
 
-  .collection-container {
-    margin-left: 16px;
-    position: relative;
-  }
+h1 {
+  margin: 0;
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 16px;
+  text-align: left;
+}
 
-  .collection-button {
-    background-color: #a892ee;
-    border: none;
-    border-radius: 4px;
-    padding: 8px 16px;
-    color: white;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.2s;
-  }
+nav {
+  display: flex;
+  justify-content: space-between; /* Ensure space between search and buttons */
+  align-items: center;
+  width: 100%;
+}
 
-  .collection-button:hover {
-    background-color: #9370db;
-  }
+/* 🔥 Fix: Search Container */
+.search-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  max-width: 400px;
+}
 
-  .dropdown {
-    position: relative;
-    display: inline-block;
-  }
+/* 🔥 Fix: Search Button */
+.search-button {
+  background-color: #fff;
+  color: #333;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s, border-color 0.2s;
+  margin-left: 8px;
+}
 
-  .dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #fff;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    border-radius: 4px;
-    z-index: 1;
-    right: 0;
-  }
+.search-button:hover {
+  background-color: #f0f0f0;
+  border-color: #a892ee;
+}
 
-  .dropdown:hover .dropdown-content {
-    display: block;
-  }
+/* 🔥 Fix: Container for Login and Collection Buttons */
+.button-container {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
 
-  .dropdown-content a {
-    color: #333;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-  }
+/* 🔥 Fix: Collection & Login Button Styling */
+.collection-button,
+.login-button {
+  background-color: #a892ee;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  color: white;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s;
+  white-space: nowrap; /* Prevents layout shift */
+}
 
-  .dropdown-content a:hover {
-    background-color: #f0f0f0;
-    border-radius: 4px;
-  }
+.collection-button:hover,
+.login-button:hover {
+  background-color: #9370db;
+}
+
+/* 🔥 Fix: Search Dropdown */
+.search-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background-color: white;
+  border: 1px solid #ccc;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1000;
+  border-radius: 4px;
+  margin-top: 5px;
+}
+
+.search-dropdown ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.search-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.search-item img {
+  margin-left: 10px;
+  width: 40px;
+  height: auto;
+  border-radius: 4px;
+}
+
+.add-button {
+  margin-left: auto;
+  padding: 5px 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.add-button:hover {
+  background-color: #45a049;
+}
