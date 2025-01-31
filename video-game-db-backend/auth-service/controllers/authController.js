@@ -1,5 +1,6 @@
 const axios = require('axios');
 const qs = require('querystring');
+const User = require('../models/User'); // Import User model
 
 const authController = {
      // Redirect to Discord's OAuth2 login page
