@@ -7,15 +7,24 @@ const Collection = ({ setSearchResults }) => {
   const [collections, setCollections] = useState([]);
   const [editCollection, setEditCollection] = useState(null);
   const [newName, setNewName] = useState("");
+  const [sortOption, setSortOption] = useState("az");
 
   useEffect(() => {
-    axios.get("http://localhost:3001/api/collections")
-      .then((response) => {
-        console.log("Collections response:", response.data);
-        setCollections(Array.isArray(response.data) ? response.data : []);
-      })
-      .catch((error) => console.error("Error fetching collections:", error));
-  }, []);
+    fetchSortedCollections(sortOption);
+  }, [sortOption]);
+
+  const fetchSortedCollections = async (sortOption) => {
+    try {
+      const response = await axios.get(`http://localhost:3001/api/collections?sort=${sortOption}`);
+      setCollections(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      console.error("Error fetching collections:", error);
+    }
+  };
+
+  const handleSortChange = (event) => {
+    setSortOption(event.target.value);
+  };
 
   const handleEdit = (collection) => {
     setEditCollection(collection.id);
@@ -50,6 +59,18 @@ const Collection = ({ setSearchResults }) => {
     <div className="collections-container">
       <h2>Game Collections</h2>
 
+      <div className="sorting-dropdown">
+        <label htmlFor="sort">Sort By:</label>
+        <select id="sort" value={sortOption} onChange={handleSortChange}>
+          <option value="az">A-Z</option>
+          <option value="za">Z-A</option>
+          <option value="highestRated">Highest Rated</option>
+          <option value="lowestRated">Lowest Rated</option>
+          <option value="mostTimePlayed">Most Time Played</option>
+          <option value="leastTimePlayed">Least Time Played</option>
+        </select>
+      </div>
+
       <ul className="collections-list">
         {collections.map((collection) => (
           <li key={collection.id} className="collection-card">
@@ -82,3 +103,4 @@ const Collection = ({ setSearchResults }) => {
 };
 
 export default Collection;
+s
