@@ -115,9 +115,13 @@ const Header = ({ setSearchResults }) => {
           <NavLink to="/collection">
             <button type="button" className="collection-button">Collection</button>
           </NavLink>
-          <NavLink to="/login" className="login-button">
-            Login with <FaDiscord />
-          </NavLink>
+          <button 
+            type="button" 
+            className="login-button"
+            onClick={() => window.location.href = 'http://localhost:3000/auth/login'}
+          >
+            Login with Discord <FaDiscord style={{ transform: 'translateY(2.5px)' }} />
+          </button>
         </div>
       </nav>
     </header>

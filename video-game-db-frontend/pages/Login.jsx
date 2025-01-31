@@ -6,8 +6,12 @@ return(
     <div className="Login container">
     <h1>This is the Login page</h1>
           <div className="login-container">
-            <button type="button" className="login-button">
-              Login in with Discord
+            <button 
+              type="button" 
+              className="login-button"
+              onClick={() => window.location.href = 'http://localhost:3000/auth/login'}
+            >
+              Login with Discord
             </button>
           </div>
 
