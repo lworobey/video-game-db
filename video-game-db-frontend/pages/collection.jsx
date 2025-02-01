@@ -103,4 +103,3 @@ const Collection = ({ setSearchResults }) => {
 };
 
 export default Collection;
-s
