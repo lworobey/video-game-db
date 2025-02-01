@@ -2,7 +2,6 @@ const axios = require('axios');
 const { getCachedToken } = require('../utils/tokenUtils');
 require('dotenv').config();
 
-// Get Twitch Access Token
 const getAccessToken = async (req, res) => {
     try {
         const token = await getCachedToken();
@@ -12,7 +11,48 @@ const getAccessToken = async (req, res) => {
     }
 };
 
-// Search Games on IGDB
+const sortCollections = (collections, sortOption) => {
+  switch (sortOption) {
+    case "az":
+      return collections.sort((a, b) => a.name.localeCompare(b.name));
+    case "za":
+      return collections.sort((a, b) => b.name.localeCompare(a.name));
+    case "highestRated":
+      return collections.sort((a, b) => b.rating - a.rating);
+    case "lowestRated":
+      return collections.sort((a, b) => a.rating - b.rating);
+    case "mostTimePlayed":
+      return collections.sort((a, b) => b.timePlayed - a.timePlayed);
+    case "leastTimePlayed":
+      return collections.sort((a, b) => a.timePlayed - b.timePlayed);
+    default:
+      return collections;
+  }
+};
+
+const getCollections = async (req, res) => {
+    try {
+        const { sort } = req.query;
+
+        const collections = [
+            { id: 1, name: 'Game A', rating: 4.5, timePlayed: 20, cover: 'url_to_cover_image' },
+            { id: 2, name: 'Game B', rating: 3.0, timePlayed: 50, cover: 'url_to_cover_image' },
+            { id: 3, name: 'Game C', rating: 5.0, timePlayed: 10, cover: 'url_to_cover_image' },
+        ];
+
+        let sortedCollections = collections;
+
+        if (sort) {
+            sortedCollections = sortCollections(sortedCollections, sort);
+        }
+
+        res.json(sortedCollections);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to fetch collections' });
+    }
+};
+
 const searchGames = async (req, res) => {
     try {
         const { query } = req.query;
@@ -42,4 +82,4 @@ const searchGames = async (req, res) => {
     }
 };
 
-module.exports = { getAccessToken, searchGames };
+module.exports = { getAccessToken, searchGames, getCollections };

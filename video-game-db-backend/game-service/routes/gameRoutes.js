@@ -4,7 +4,6 @@ const { concurrentRequestLimiter, gameSearchLimiter } = require('../middleware/g
 
 const router = express.Router();
 
-// ✅ Get Access Token
 router.get('/token', async (req, res) => {
     try {
         const token = await getAccessToken();
@@ -14,18 +13,41 @@ router.get('/token', async (req, res) => {
     }
 });
 
-// ✅ Search IGDB API at `/api/search`
 router.get('/search', concurrentRequestLimiter, gameSearchLimiter, searchGames);
 
-// ✅ Collection Storage (Temporary In-Memory)
 let collections = [];
 
-// ✅ Get All Collections (`GET /api/collections`)
 router.get('/collections', (req, res) => {
+    const { sort } = req.query;
+
+    if (sort) {
+        switch (sort) {
+            case "az":
+                collections.sort((a, b) => a.name.localeCompare(b.name));
+                break;
+            case "za":
+                collections.sort((a, b) => b.name.localeCompare(a.name));
+                break;
+            case "highestRated":
+                collections.sort((a, b) => b.rating - a.rating);
+                break;
+            case "lowestRated":
+                collections.sort((a, b) => a.rating - b.rating);
+                break;
+            case "mostTimePlayed":
+                collections.sort((a, b) => b.timePlayed - a.timePlayed);
+                break;
+            case "leastTimePlayed":
+                collections.sort((a, b) => a.timePlayed - b.timePlayed);
+                break;
+            default:
+                break;
+        }
+    }
+
     res.json(collections);
 });
 
-// ✅ Add a Game to Collection (`POST /api/collections`)
 router.post('/collections', (req, res) => {
     const { id, name, cover } = req.body;
 
@@ -33,7 +55,6 @@ router.post('/collections', (req, res) => {
         return res.status(400).json({ error: "Game ID and name are required" });
     }
 
-    // 🔥 Prevent adding duplicate games
     if (collections.some((game) => game.id === id)) {
         return res.status(409).json({ error: "Game is already in the collection" });
     }
@@ -43,7 +64,6 @@ router.post('/collections', (req, res) => {
     res.status(201).json(newGame);
 });
 
-// ✅ Remove a Game from Collection (`DELETE /api/collections/:id`)
 router.delete('/collections/:id', (req, res) => {
     const { id } = req.params;
     const index = collections.findIndex(game => game.id == id);
