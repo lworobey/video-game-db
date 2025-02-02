@@ -2,6 +2,7 @@ const axios = require('axios');
 const { getCachedToken } = require('../utils/tokenUtils');
 require('dotenv').config();
 
+// Get Twitch Access Token
 const getAccessToken = async (req, res) => {
     try {
         const token = await getCachedToken();
@@ -11,6 +12,7 @@ const getAccessToken = async (req, res) => {
     }
 };
 
+// Sort collections based on the provided sort option
 const sortCollections = (collections, sortOption) => {
   switch (sortOption) {
     case "az":
@@ -18,30 +20,29 @@ const sortCollections = (collections, sortOption) => {
     case "za":
       return collections.sort((a, b) => b.name.localeCompare(a.name));
     case "highestRated":
-      return collections.sort((a, b) => b.rating - a.rating);
+      return collections.sort((a, b) => b.rating - a.rating); // Assuming 'rating' is numeric
     case "lowestRated":
       return collections.sort((a, b) => a.rating - b.rating);
     case "mostTimePlayed":
-      return collections.sort((a, b) => b.timePlayed - a.timePlayed);
+      return collections.sort((a, b) => b.timePlayed - a.timePlayed); // Assuming 'timePlayed' is numeric
     case "leastTimePlayed":
       return collections.sort((a, b) => a.timePlayed - b.timePlayed);
     default:
-      return collections;
+      return collections; // No sorting
   }
 };
 
+// Temporary in-memory collections storage
+let collections = [];
+
+// Handle collections route with sorting
 const getCollections = async (req, res) => {
     try {
         const { sort } = req.query;
 
-        const collections = [
-            { id: 1, name: 'Game A', rating: 4.5, timePlayed: 20, cover: 'url_to_cover_image' },
-            { id: 2, name: 'Game B', rating: 3.0, timePlayed: 50, cover: 'url_to_cover_image' },
-            { id: 3, name: 'Game C', rating: 5.0, timePlayed: 10, cover: 'url_to_cover_image' },
-        ];
-
         let sortedCollections = collections;
 
+        // Sort collections if a sort option is provided
         if (sort) {
             sortedCollections = sortCollections(sortedCollections, sort);
         }
@@ -53,6 +54,7 @@ const getCollections = async (req, res) => {
     }
 };
 
+// Search Games on IGDB
 const searchGames = async (req, res) => {
     try {
         const { query } = req.query;
@@ -82,4 +84,55 @@ const searchGames = async (req, res) => {
     }
 };
 
-module.exports = { getAccessToken, searchGames, getCollections };
+// Handle updating a collection
+const updateCollection = (req, res) => {
+    const { id } = req.params;
+    const { name, rating, timePlayed } = req.body;
+
+    // Find the collection by ID and update it
+    let collection = collections.find((col) => col.id == id);
+    if (!collection) {
+        return res.status(404).json({ error: "Collection not found" });
+    }
+
+    // Update fields
+    collection.name = name || collection.name;
+    collection.rating = rating || collection.rating;
+    collection.timePlayed = timePlayed || collection.timePlayed;
+
+    res.status(200).json(collection);
+};
+
+// Add a Game to Collection (`POST /api/collections`)
+const addToCollection = (req, res) => {
+    const { id, name, cover } = req.body;
+
+    if (!id || !name) {
+        return res.status(400).json({ error: "Game ID and name are required" });
+    }
+
+    // 🔥 Prevent adding duplicate games
+    if (collections.some((game) => game.id === id)) {
+        return res.status(409).json({ error: "Game is already in the collection" });
+    }
+
+    const newGame = { id, name, cover, rating: null, timePlayed: null };
+    collections.push(newGame);
+    res.status(201).json(newGame);
+};
+
+// Delete a Game from Collection (`DELETE /api/collections/:id`)
+const deleteCollection = (req, res) => {
+  const { id } = req.params;
+  const index = collections.findIndex(game => game.id == id); // Ensure ID is compared correctly
+
+  if (index === -1) {
+    return res.status(404).json({ error: "Game not found in collections" });
+  }
+
+  collections.splice(index, 1);
+  res.status(200).json({ message: "Game removed from collections" });
+};
+
+// Export the controller functions
+module.exports = { getAccessToken, searchGames, getCollections, updateCollection, addToCollection, deleteCollection };
