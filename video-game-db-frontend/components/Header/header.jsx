@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import axios from "axios";
 import "./header.css";
-import { FaDiscord } from "react-icons/fa";
+import { FaDiscord, FaHome } from "react-icons/fa"; 
 
 const Header = ({ setSearchResults }) => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -112,6 +112,12 @@ const Header = ({ setSearchResults }) => {
         </div>
 
         <div className="button-container">
+          <NavLink to="/" className="home-button">
+            <button type="button" className="home-button">
+              <FaHome /> Home
+            </button>
+          </NavLink>
+
           <NavLink to="/collection">
             <button type="button" className="collection-button">Collection</button>
           </NavLink>
