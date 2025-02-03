@@ -11,6 +11,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());  // Parse JSON request bodies
 
+// Request logging middleware
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.originalUrl} - Request received`);
+  next();
+});
+
 // Routes
 app.use('/auth', authRoutes);  // Authentication routes
 app.use('/api', userRoutes);   // User data routes

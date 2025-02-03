@@ -10,6 +10,12 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+// Request logging middleware
+app.use((req, res, next) => {
+    console.log(`${req.method} ${req.originalUrl} - Request received`);
+  next();
+});
+
 app.use('/api', gameRoutes);
 
 // server.js
