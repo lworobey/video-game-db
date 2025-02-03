@@ -10,6 +10,7 @@ const Header = ({ setSearchResults }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [collections, setCollections] = useState([]);
   const [username, setUsername] = useState(null); // Manage user data state
+  const [avatar, setAvatar] = useState(null); // Manage user avatar
   const searchRef = useRef(null);
 
   // Fetch collections on mount
@@ -36,10 +37,12 @@ const Header = ({ setSearchResults }) => {
         .then((response) => {
           console.log("User data fetched successfully:", response.data);
           setUsername(response.data.username); // Set username if logged in
+          setAvatar(response.data.avatar);
         })
         .catch((error) => {
           console.error("Error fetching user data:", error);
           setUsername(null); // Reset username if the token is invalid or expired
+          setAvatar(null);
         });
     } else {
       console.log("No JWT token found, user is not authenticated");
@@ -78,7 +81,8 @@ const Header = ({ setSearchResults }) => {
 
     console.log(`Attempting to add game "${game.name}" to collection...`);
     try {
-      const response = await axios.post("http://localhost:3001/api/collections", {
+      const response = await axios.post(`${import.meta.env.VITE_GAME_SERVICE_API}/collections`, {
+        username,
         id: game.id,
         name: game.name,
         cover: game.cover ? game.cover.url : null,
@@ -121,6 +125,7 @@ const Header = ({ setSearchResults }) => {
     console.log("Logging out... Removing token from localStorage.");
     localStorage.removeItem("jwt_token"); // Remove the JWT token from localStorage
     setUsername(null); // Reset the username state
+    setAvatar(null);
     window.location.href = "/"; // Redirect to the home page
   };
 
@@ -182,6 +187,19 @@ const Header = ({ setSearchResults }) => {
           <div className="user-info">
             {username ? (
               <div className="user-container">
+                {avatar && (
+                  <img 
+                    src={avatar}
+                    alt="Discord Avatar"
+                    className="discord-avatar"
+                    style={{
+                      width: "32px",
+                      height: "32px",
+                      borderRadius: "50%",
+                      marginBottom: "4px"
+                    }}
+                  />
+                )}
                 <p>Welcome, {username}</p>
                 <button type="button" className="logout-button" onClick={handleLogout}>
                   Logout

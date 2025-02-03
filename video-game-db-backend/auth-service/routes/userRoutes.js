@@ -7,9 +7,7 @@ router.get('/user', authenticateJWT, async (req, res) => {
   try {
     // The user is available from the `req.user` object due to the JWT middleware
     res.json({
-      id: req.user.id,
-      username: req.user.username,
-      email: req.user.email,
+      username: req.user.username
     });
   } catch (error) {
     console.error("Error fetching user data:", error);

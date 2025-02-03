@@ -1,5 +1,8 @@
 const axios = require('axios');
 const { getCachedToken } = require('../utils/tokenUtils');
+const Game = require('../models/Game');
+const User = require('../../auth-service/models/User')
+const Collection = require('../models/Collection')
 require('dotenv').config();
 
 const getAccessToken = async (req, res) => {
@@ -165,20 +168,59 @@ const sortCollections = (collections, sortOption) => {
     }
 };
 
-const addToCollection = (req, res) => {
-    const { id, name, cover } = req.body;
-    if (!id || !name) {
-        console.error('Attempted to add game without required fields');
-        return res.status(400).json({ error: "Game ID and name are required" });
+const addToCollection = async (req, res) => {
+    try {
+        const { id, username, name, cover, description, releaseDate, platforms, genres } = req.body;
+        
+        if (!username){
+            console.error('attempted to add game without user data');
+            return res.status(400).json({ error: "Requires an account to create collection" });
+        }
+
+        // check if both of these are fulfilled
+        if (!id || !name) {
+            console.error('Attempted to add game without required fields');
+            return res.status(400).json({ error: "Game ID and name are required" });
+        }
+
+        // Check if game already exists in database
+        const existingGame = await Game.findOne({ igdbId: id });
+        if (existingGame) {
+            console.log(`Game ${id} already exists in collection`);
+            return res.status(409).json({ error: "Game is already in the collection" });
+        }
+
+        // Create new game document
+        const newGame = new Game({
+            igdbId: id,
+            name,
+            cover,
+            description,
+            releaseDate,
+            platforms,
+            genres,
+            rating: null,
+            timePlayed: null
+        });
+
+        // Save to database
+        const newGameId = (await newGame.save())._id;
+        
+        console.log(username)
+        // taking username, and grabbing the userId from our database
+        const userId = await User.findOne({username})
+        console.log(userId)
+        //check if collection exist
+        const userCollection = await Collection.findOneAndUpdate({user: userId}, {$push: {games: newGameId}}, {upsert: true})
+
+        await userCollection.save()
+
+        console.log(`Added game ${name} (${id}) to collection`);
+        res.status(201).json(newGame);
+    } catch (error) {
+        console.error('Error adding game to collection:', error);
+        res.status(500).json({ error: 'Failed to add game to collection' });
     }
-    if (collections.some((game) => game.id === id)) {
-        console.log(`Game ${id} already exists in collection`);
-        return res.status(409).json({ error: "Game is already in the collection" });
-    }
-    const newGame = { id, name, cover, rating: null, timePlayed: null };
-    collections.push(newGame);
-    console.log(`Added game ${name} (${id}) to collection`);
-    res.status(201).json(newGame);
 };
 
 const updateCollection = (req, res) => {

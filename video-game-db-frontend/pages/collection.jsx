@@ -4,7 +4,7 @@ import { FaTrash, FaEdit } from "react-icons/fa";
 import "./collection.css";
 
 const Collection = ({ setSearchResults }) => {
-  const [collections, setCollections] = useState([]);
+  const [collections, setCollections] = useState([]); // state to store fetch collections
   const [editCollection, setEditCollection] = useState(null);
   const [newName, setNewName] = useState("");
   const [newRating, setNewRating] = useState(null); // Default rating is null

@@ -9,6 +9,12 @@ const gameSchema = new mongoose.Schema({
     lastUpdated: { type: Date, default: Date.now }
 });
 
+gameSchema.pre("deleteOne", {document: true, query: false}, async function (next) {
+    const gameId = this._id;
+
+    next();
+})
+
 const Game = mongoose.model('Game', gameSchema);
 
 module.exports = Game;
