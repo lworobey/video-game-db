@@ -14,16 +14,24 @@ const Collection = ({ setSearchResults }) => {
     seconds: null
   }); // Default timePlayed values to null
   const [sortOption, setSortOption] = useState(""); // Add sort state
+  const [error, setError] = useState(null);
 
   useEffect(() => {
+    console.log('Fetching collections with sort option:', sortOption);
     axios.get(`http://localhost:3001/api/collections${sortOption ? `?sort=${sortOption}` : ''}`)
       .then((response) => {
+        console.log('Successfully fetched collections:', response.data);
         setCollections(Array.isArray(response.data) ? response.data : []);
+        setError(null);
       })
-      .catch((error) => console.error("Error fetching collections:", error));
+      .catch((error) => {
+        console.error("Error fetching collections:", error);
+        setError("Failed to load collections. Please try again later.");
+      });
   }, [sortOption]); // Add sortOption as dependency
 
   const handleEdit = (collection) => {
+    console.log('Editing collection:', collection);
     setEditCollection(collection.id);
     setNewName(collection.name);
     setNewRating(collection.rating); // Let it be null if not set
@@ -36,6 +44,7 @@ const Collection = ({ setSearchResults }) => {
 
   const handleUpdate = async (collectionId) => {
     try {
+      console.log('Updating collection:', collectionId);
       const timePlayedInSeconds = newTimePlayed.hours * 3600 + newTimePlayed.minutes * 60 + newTimePlayed.seconds;
       const updatedCollection = { 
         name: newName, 
@@ -43,19 +52,24 @@ const Collection = ({ setSearchResults }) => {
         timePlayed: timePlayedInSeconds 
       };
       
+      console.log('Sending update with data:', updatedCollection);
       await axios.put(`http://localhost:3001/api/collections/${collectionId}`, updatedCollection);
       
       setCollections(collections.map(col =>
         col.id === collectionId ? { ...col, ...updatedCollection } : col
       ));
       setEditCollection(null);
+      setError(null);
+      console.log('Successfully updated collection');
     } catch (error) {
       console.error("Error updating collection:", error);
+      setError("Failed to update collection. Please try again.");
     }
   };
 
   const handleRemove = async (collectionId) => {
     try {
+      console.log('Removing collection:', collectionId);
       await axios.delete(`http://localhost:3001/api/collections/${collectionId}`);
       setCollections(collections.filter(col => col.id !== collectionId));
       setSearchResults((prevSearchResults) =>
@@ -63,14 +77,18 @@ const Collection = ({ setSearchResults }) => {
           game.id === collectionId ? { ...game, added: false } : game
         )
       );
+      setError(null);
+      console.log('Successfully removed collection');
     } catch (error) {
       console.error("Error removing game from collection:", error);
+      setError("Failed to remove game. Please try again.");
     }
   };
 
   const handleTimeChange = (field, value) => {
     // Ensure the value is a non-negative number, otherwise reset to 0
     const newValue = value < 0 ? 0 : value;
+    console.log(`Updating ${field} time to:`, newValue);
     setNewTimePlayed(prev => ({
       ...prev,
       [field]: newValue,
@@ -78,11 +96,14 @@ const Collection = ({ setSearchResults }) => {
   };
 
   const handleRatingChange = (value) => {
+    console.log('Setting new rating:', value);
     // Ensure rating is between 1 and 10, or null if empty
     if (value === "") {
       setNewRating(null); // If empty, fallback to null
     } else if (value >= 1 && value <= 10) {
       setNewRating(value); // Set value if within range
+    } else {
+      console.warn('Invalid rating value:', value);
     }
   };
 
@@ -98,6 +119,8 @@ const Collection = ({ setSearchResults }) => {
     <div className="collections-container">
       <h2>Game Collections</h2>
       
+      {error && <div className="error-message">{error}</div>}
+
       <div className="sort-controls">
         <label>Sort by: </label>
         <select value={sortOption} onChange={(e) => setSortOption(e.target.value)}>

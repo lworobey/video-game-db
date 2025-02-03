@@ -7,18 +7,25 @@ const authController = {
 
   // OAuth login - Redirect to Discord OAuth page
   login: (req, res) => {
+    console.log('Starting OAuth login process...');
     const redirectUri = process.env.DISCORD_REDIRECT_URI;
     const clientId = process.env.DISCORD_CLIENT_ID;
     const scope = 'identify email';
     const responseType = 'code';
 
+    if (!redirectUri || !clientId) {
+      console.error('Missing required environment variables for OAuth login');
+      return res.status(500).json({ error: 'Server configuration error' });
+    }
+
     const oauthUrl = `https://discord.com/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=${responseType}&scope=${encodeURIComponent(scope)}`;
-    console.log("Redirecting user to Discord OAuth page..."); // Log OAuth redirect
+    console.log("Redirecting user to Discord OAuth page:", oauthUrl); // Log OAuth redirect
     res.redirect(oauthUrl);  // Redirect the user to Discord for login
   },
 
   // OAuth callback - Get user info from Discord, issue a JWT token, and store in session
   callback: async (req, res) => {
+    console.log('Starting OAuth callback process...');
     const code = req.query.code;
     if (!code) {
       console.error("No code provided in the callback request.");
@@ -28,6 +35,7 @@ const authController = {
     console.log("Received authorization code:", code); // Log the authorization code
 
     try {
+      console.log('Attempting to exchange code for access token...');
       // Step 1: Exchange the code for an access token from Discord
       const tokenResponse = await axios.post(
         'https://discord.com/api/oauth2/token',
@@ -44,6 +52,7 @@ const authController = {
       const { access_token } = tokenResponse.data;
       console.log("Access token received from Discord:", access_token); // Log the access token
 
+      console.log('Fetching user data from Discord API...');
       // Step 2: Fetch user info from Discord
       const userResponse = await axios.get('https://discord.com/api/users/@me', {
         headers: { Authorization: `Bearer ${access_token}` }
@@ -52,9 +61,11 @@ const authController = {
       const userData = userResponse.data;
       console.log("User data fetched from Discord:", userData); // Log the user data
 
+      console.log('Checking if user exists in database...');
       // Step 3: Check if user exists in DB, otherwise create a new user
       let user = await User.findOne({ discordId: userData.id });
       if (!user) {
+        console.log('Creating new user in database...');
         user = new User({
           discordId: userData.id,
           username: userData.username,
@@ -64,9 +75,10 @@ const authController = {
         await user.save();
         console.log("New user created in the database:", user);
       } else {
-        console.log("User found in database:", user);
+        console.log("Existing user found in database:", user);
       }
 
+      console.log('Generating JWT token...');
       // Step 4: Generate JWT token for the user
       const token = jwt.sign(
         { discordId: user.discordId, username: user.username },
@@ -77,15 +89,20 @@ const authController = {
 
       // Step 5: Store the token in the session (for persistence)
       req.session.token = token;
-      console.log("Session token stored:", req.session.token); // Log the session token
+      console.log("Session token stored successfully:", req.session.token); // Log the session token
 
       // Step 6: Redirect to frontend with token
       console.log("Redirecting to frontend with token...");
       res.redirect(`http://localhost:5173?token=${token}`);
 
     } catch (error) {
-      console.error("Error during OAuth callback:", error);
-      res.status(500).json({ error: 'Internal server error' });
+      console.error("OAuth callback error details:", error.message);
+      console.error("Full error stack:", error.stack);
+      if (error.response) {
+        console.error("API Error Response:", error.response.data);
+        console.error("API Error Status:", error.response.status);
+      }
+      res.status(500).json({ error: 'Internal server error during OAuth process' });
     }
   }
 };
