@@ -9,6 +9,8 @@
   
   h1, h2 {
     font-size: 2rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
   }
   
   .games-list {
@@ -16,6 +18,7 @@
     justify-content: center;
     flex-wrap: wrap;
     gap: 1rem;
+    padding: 0 1rem;
   }
   
   .game-item {
@@ -40,10 +43,12 @@
   .game-info h3 {
     font-size: 1.1rem;
     margin: 0;
+    text-align: center;
   }
   
   .game-info p {
     font-size: 0.9rem;
     color: #555;
-  }
-  
+    text-align: center;
+  }  
+

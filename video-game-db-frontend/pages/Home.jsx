@@ -1,100 +1,78 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import './home.css';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import './home.css'; // Ensure you have the correct styling
 
 const Home = () => {
   const [newReleases, setNewReleases] = useState([]);
-  const [topRated, setTopRated] = useState([]);
-  const [trending, setTrending] = useState([]);
+  const [topRated, setTopRated] = useState([]); // Placeholder for top-rated games
 
-  // Fetch game data for each category
   useEffect(() => {
-    const fetchGamesByCategory = async () => {
+    const fetchGames = async () => {
       try {
-        // Fetch New Releases 
-       // const newReleasesResponse = await axios.get('http://localhost:3001/api/search?query=new+releases');
-       // setNewReleases(newReleasesResponse.data);
+        // Fetch New Releases (direct from IGDB API)
+        const newReleasesResponse = await axios.get('http://localhost:3001/api/new-releases');
+        setNewReleases(newReleasesResponse.data);
 
-        // Fetch Top Rated games
-       // const topRatedResponse = await axios.get('http://localhost:3001/api/search?query=top+rated');
-       // setTopRated(topRatedResponse.data);
-
-        // Fetch Trending games 
-     //   const trendingResponse = await axios.get('http://localhost:3001/api/search?query=trending');
-     //   setTrending(trendingResponse.data);
+        // Fetch Top Rated Games (placeholder for future DB logic)
+        const topRatedResponse = await axios.get('http://localhost:3001/api/top-rated');
+        setTopRated(topRatedResponse.data);
       } catch (error) {
-        console.error('Error fetching game categories:', error);
+        console.error('Error fetching new releases:', error);
       }
     };
 
-    fetchGamesByCategory();
+    fetchGames();
   }, []);
-
   return (
     <div className="home">
-      <h1>Welcome to the Video Game Database</h1>
-
-      {/* Display New Releases */}
+      <h1>New Releases</h1>
       <div className="category-section">
-        <h2>New Releases</h2>
-        <div className="games-list">
-          {newReleases.length > 0 ? (
-            newReleases.map((game) => (
+        {newReleases.length > 0 ? (
+          <div className="games-list">
+            {newReleases.map((game) => (
               <div key={game.id} className="game-item">
-                <img src={game.cover?.url} alt={game.name} width="100" />
-                <div className="game-info">
+                <img 
+                  src={game.cover?.url} 
+                  alt={game.name} 
+                  className="game-image" 
+                />
+                <div className="game-details">
                   <h3>{game.name}</h3>
                   <p>Genres: {game.genres?.map(genre => genre.name).join(', ')}</p>
                   <p>Rating: {game.rating || 'N/A'}</p>
+                  <p>Release Date: {new Date(game.release_date * 1000).toLocaleDateString()}</p>
                 </div>
               </div>
-            ))
-          ) : (
-            <p>Loading new releases...</p>
-          )}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <p>Loading new releases...</p>
+        )}
       </div>
 
-      {/* Display Top Rated Games */}
+      {/* Placeholder for Top Rated Games */}
       <div className="category-section">
         <h2>Top Rated</h2>
-        <div className="games-list">
-          {topRated.length > 0 ? (
-            topRated.map((game) => (
-              <div key={game.id} className="game-item">
-                <img src={game.cover?.url} alt={game.name} width="100" />
-                <div className="game-info">
+        {topRated.length > 0 ? (
+          <ul className="game-list">
+            {topRated.map((game) => (
+              <li key={game.id} className="game-item">
+                <img 
+                  src={game.cover?.url} 
+                  alt={game.name} 
+                  className="game-image" 
+                />
+                <div className="game-details">
                   <h3>{game.name}</h3>
                   <p>Genres: {game.genres?.map(genre => genre.name).join(', ')}</p>
                   <p>Rating: {game.rating || 'N/A'}</p>
                 </div>
-              </div>
-            ))
-          ) : (
-            <p>Loading top rated games...</p>
-          )}
-        </div>
-      </div>
-
-      {/* Display Trending Games */}
-      <div className="category-section">
-        <h2>Trending</h2>
-        <div className="games-list">
-          {trending.length > 0 ? (
-            trending.map((game) => (
-              <div key={game.id} className="game-item">
-                <img src={game.cover?.url} alt={game.name} width="100" />
-                <div className="game-info">
-                  <h3>{game.name}</h3>
-                  <p>Genres: {game.genres?.map(genre => genre.name).join(', ')}</p>
-                  <p>Rating: {game.rating || 'N/A'}</p>
-                </div>
-              </div>
-            ))
-          ) : (
-            <p>Loading trending games...</p>
-          )}
-        </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>Loading top rated games...</p>
+        )}
       </div>
     </div>
   );
