@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { getAccessToken, fetchNewReleases, fetchTopRated, getCollections, updateCollection, addToCollection, deleteCollection } = require('../controllers/gameController');
+const { getAccessToken, fetchNewReleases, fetchTopRated, getCollections, updateCollection, addToCollection, deleteCollection, searchGames } = require('../controllers/gameController');
 
 router.get('/token', getAccessToken);
 router.get('/new-releases', fetchNewReleases);
 router.get('/top-rated', fetchTopRated);
+router.get('/search', searchGames);
 router.get('/collections', getCollections);
 router.post('/collections', addToCollection);
 router.put('/collections/:id', updateCollection);

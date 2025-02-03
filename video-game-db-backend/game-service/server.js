@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const mongoose = require('mongoose');
 const gameRoutes = require('./routes/gameRoutes');
 
 const app = express();
@@ -19,6 +20,11 @@ app.get('/api/user', (req, res) => {
         return res.status(401).json({ message: 'Not logged in' });
     }
 });
+
+// Connect to MongoDB
+mongoose.connect(process.env.MONGODB_URI)
+.then(() => console.log('Connected to MongoDB'))
+.catch(err => console.error('MongoDB connection error:', err));
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
