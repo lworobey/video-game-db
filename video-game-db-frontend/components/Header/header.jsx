@@ -1,28 +1,50 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { NavLink } from "react-router-dom";
 import axios from "axios";
 import "./header.css";
-import { FaDiscord, FaHome } from "react-icons/fa"; 
+import { FaDiscord, FaHome } from "react-icons/fa";
 
 const Header = ({ setSearchResults }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setLocalSearchResults] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [collections, setCollections] = useState([]);
+  const [username, setUsername] = useState(null); // Manage user data state
   const searchRef = useRef(null);
 
   // Fetch collections on mount
   useEffect(() => {
-    axios.get("http://localhost:3001/api/collections")
+    // Fetch collections data
+    axios
+      .get("http://localhost:3001/api/collections")
       .then((response) => setCollections(response.data))
       .catch((error) => console.error("Error fetching collections:", error));
+
+    // Check if the user is logged in by looking for the token in localStorage
+    const token = localStorage.getItem("jwt_token"); // Get token from localStorage
+    if (token) {
+      // If token exists, fetch user data from the backend
+      axios
+        .get("http://localhost:3000/api/user", {
+          headers: { Authorization: `Bearer ${token}` }, // Send token in the Authorization header
+        })
+        .then((response) => {
+          setUsername(response.data.username); // Set username if logged in
+        })
+        .catch((error) => {
+          console.error("Error fetching user data:", error);
+          setUsername(null); // Reset username if the token is invalid or expired
+        });
+    }
   }, []);
 
   // Handle search input and fetch results
   const handleSearch = async () => {
     if (!searchQuery) return;
     try {
-      const response = await axios.get(`http://localhost:3001/api/search?query=${searchQuery}`);
+      const response = await axios.get(
+        `http://localhost:3001/api/search?query=${searchQuery}`
+      );
       setLocalSearchResults(response.data);
       setShowDropdown(true);
     } catch (error) {
@@ -46,14 +68,15 @@ const Header = ({ setSearchResults }) => {
       const response = await axios.post("http://localhost:3001/api/collections", {
         id: game.id,
         name: game.name,
-        cover: game.cover ? game.cover.url : null
+        cover: game.cover ? game.cover.url : null,
       });
 
       setCollections([...collections, response.data]); // Update collection state
-      // Update search results to reflect the "Added" status
-      setLocalSearchResults(searchResults.map(g => 
-        g.id === game.id ? { ...g, added: true } : g
-      ));
+      setLocalSearchResults(
+        searchResults.map((g) =>
+          g.id === game.id ? { ...g, added: true } : g
+        )
+      );
       console.log(`Added "${game.name}" to collection!`);
     } catch (error) {
       console.error("Error adding game to collection:", error);
@@ -70,6 +93,32 @@ const Header = ({ setSearchResults }) => {
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Handle login by redirecting to the OAuth route
+  const handleLogin = () => {
+    console.log("Redirecting user to Discord login...");
+    window.location.href = "http://localhost:3000/auth/login"; // Trigger OAuth login
+  };
+
+  // Handle logout by removing the JWT token from localStorage
+  const handleLogout = () => {
+    console.log("Logging out... Removing token from localStorage.");
+    localStorage.removeItem("jwt_token"); // Remove the JWT token from localStorage
+    setUsername(null); // Reset the username state
+    window.location.href = "/"; // Redirect to the home page
+  };
+
+  // Handle URL redirection after OAuth login
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token'); // Get token from URL
+
+    if (token) {
+      console.log("Token received in URL:", token); // Log the received token
+      localStorage.setItem('jwt_token', token); // Store token in localStorage
+      window.location.href = "/"; // Redirect to home after storing token
+    }
   }, []);
 
   return (
@@ -96,9 +145,11 @@ const Header = ({ setSearchResults }) => {
                 {searchResults.map((game) => (
                   <li key={game.id} className="search-item">
                     <strong>{game.name}</strong>
-                    {game.cover && <img src={game.cover.url} alt={game.name} width="50" />}
-                    <button 
-                      className="add-button" 
+                    {game.cover && (
+                      <img src={game.cover.url} alt={game.name} width="50" />
+                    )}
+                    <button
+                      className="add-button"
                       onClick={() => handleAddToCollection(game)}
                       disabled={isGameInCollection(game.id)} // Disable button if game is already in collection
                     >
@@ -112,6 +163,21 @@ const Header = ({ setSearchResults }) => {
         </div>
 
         <div className="button-container">
+          <div className="user-info">
+            {username ? (
+              <div className="user-container">
+                <p>Welcome, {username}</p>
+                <button type="button" className="logout-button" onClick={handleLogout}>
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <button type="button" className="login-button" onClick={handleLogin}>
+                Login with Discord <FaDiscord style={{ transform: "translateY(2.5px)" }} />
+              </button>
+            )}
+          </div>
+
           <NavLink to="/" className="home-button">
             <button type="button" className="home-button">
               <FaHome /> Home
@@ -121,13 +187,6 @@ const Header = ({ setSearchResults }) => {
           <NavLink to="/collection">
             <button type="button" className="collection-button">Collection</button>
           </NavLink>
-          <button 
-            type="button" 
-            className="login-button"
-            onClick={() => window.location.href = 'http://localhost:3000/auth/login'}
-          >
-            Login with Discord <FaDiscord style={{ transform: 'translateY(2.5px)' }} />
-          </button>
         </div>
       </nav>
     </header>

@@ -1,63 +1,93 @@
 const axios = require('axios');
 const qs = require('querystring');
-const User = require('../models/User'); // Import User model
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');  // Assuming you have a User model
 
 const authController = {
-     // Redirect to Discord's OAuth2 login page
-     login: (req, res) => {
-        const redirectUri = process.env.DISCORD_REDIRECT_URI;
-        const clientId = process.env.DISCORD_CLIENT_ID;
-        const scope = 'identify email'; // Scope to request user email and basic info
-        const responseType = 'code'; // We'll use 'code' to request an authorization code
-        const oauthUrl = `https://discord.com/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`;
 
-        res.redirect(oauthUrl); // Redirect the user to the OAuth page
-    },
+  // OAuth login - Redirect to Discord OAuth page
+  login: (req, res) => {
+    const redirectUri = process.env.DISCORD_REDIRECT_URI;
+    const clientId = process.env.DISCORD_CLIENT_ID;
+    const scope = 'identify email';
+    const responseType = 'code';
 
-    // Handle OAuth callback and exchange code for access token
-    callback: async (req, res) => {
-        const code = req.query.code;
-        if (!code) return res.status(400).json({ error: 'No code provided' });
-    
-        try {
-            const tokenResponse = await axios.post(
-                'https://discord.com/api/oauth2/token',
-                qs.stringify({
-                    client_id: process.env.DISCORD_CLIENT_ID,
-                    client_secret: process.env.DISCORD_CLIENT_SECRET,
-                    grant_type: 'authorization_code',
-                    code: code,
-                    redirect_uri: process.env.DISCORD_REDIRECT_URI
-                }),
-                { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
-            );
-    
-            const { access_token } = tokenResponse.data;
-            const userResponse = await axios.get('https://discord.com/api/users/@me', {
-                headers: { Authorization: `Bearer ${access_token}` }
-            });
-    
-            const userData = userResponse.data;
-    
-            // Check if user already exists in MongoDB
-            let user = await User.findOne({ discordId: userData.id });
-            if (!user) {
-                user = new User({
-                    discordId: userData.id,
-                    username: userData.username,
-                    email: userData.email || '',
-                    avatar: userData.avatar
-                });
-                await user.save();
-            }
-    
-            res.json({ message: 'Authentication successful', user });
-    
-        } catch (error) {
-            console.error('OAuth callback error:', error.response?.data || error.message);
-            res.status(500).json({ error: 'Failed to authenticate with Discord' });
-        }
+    const oauthUrl = `https://discord.com/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=${responseType}&scope=${encodeURIComponent(scope)}`;
+    console.log("Redirecting user to Discord OAuth page..."); // Log OAuth redirect
+    res.redirect(oauthUrl);  // Redirect the user to Discord for login
+  },
+
+  // OAuth callback - Get user info from Discord, issue a JWT token, and store in session
+  callback: async (req, res) => {
+    const code = req.query.code;
+    if (!code) {
+      console.error("No code provided in the callback request.");
+      return res.status(400).json({ error: 'No code provided' });
     }
+
+    console.log("Received authorization code:", code); // Log the authorization code
+
+    try {
+      // Step 1: Exchange the code for an access token from Discord
+      const tokenResponse = await axios.post(
+        'https://discord.com/api/oauth2/token',
+        qs.stringify({
+          client_id: process.env.DISCORD_CLIENT_ID,
+          client_secret: process.env.DISCORD_CLIENT_SECRET,
+          grant_type: 'authorization_code',
+          code: code,
+          redirect_uri: process.env.DISCORD_REDIRECT_URI,
+        }),
+        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+      );
+
+      const { access_token } = tokenResponse.data;
+      console.log("Access token received from Discord:", access_token); // Log the access token
+
+      // Step 2: Fetch user info from Discord
+      const userResponse = await axios.get('https://discord.com/api/users/@me', {
+        headers: { Authorization: `Bearer ${access_token}` }
+      });
+
+      const userData = userResponse.data;
+      console.log("User data fetched from Discord:", userData); // Log the user data
+
+      // Step 3: Check if user exists in DB, otherwise create a new user
+      let user = await User.findOne({ discordId: userData.id });
+      if (!user) {
+        user = new User({
+          discordId: userData.id,
+          username: userData.username,
+          email: userData.email,
+          avatar: userData.avatar,
+        });
+        await user.save();
+        console.log("New user created in the database:", user);
+      } else {
+        console.log("User found in database:", user);
+      }
+
+      // Step 4: Generate JWT token for the user
+      const token = jwt.sign(
+        { discordId: user.discordId, username: user.username },
+        process.env.JWT_SECRET,
+        { expiresIn: '1h' }
+      );
+      console.log("JWT token generated for user:", token); // Log the generated JWT token
+
+      // Step 5: Store the token in the session (for persistence)
+      req.session.token = token;
+      console.log("Session token stored:", req.session.token); // Log the session token
+
+      // Step 6: Redirect to frontend with token
+      console.log("Redirecting to frontend with token...");
+      res.redirect(`http://localhost:5173?token=${token}`);
+
+    } catch (error) {
+      console.error("Error during OAuth callback:", error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
 };
 
 module.exports = authController;

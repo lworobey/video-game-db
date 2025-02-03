@@ -1,23 +1,26 @@
-const mongoose = require('mongoose');
-const authRoutes = require('./routes/authRoutes');
-require('dotenv').config();
-const cors = require("cors"); 
 const express = require('express');
+const mongoose = require('mongoose');
+require('dotenv').config();  // Load environment variables from .env file
+const cors = require('cors');
+const authRoutes = require('./routes/authRoutes');  // Authentication routes
+const userRoutes = require('./routes/userRoutes');  // User data routes
+
 const app = express();
+
+// Middleware setup
 app.use(cors());
-app.use(express.json());
+app.use(express.json());  // Parse JSON request bodies
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/video-game-db', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-  .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('MongoDB connection error:', err));
+// Routes
+app.use('/auth', authRoutes);  // Authentication routes
+app.use('/api', userRoutes);   // User data routes
 
-app.use('/auth', authRoutes); // Register auth routes under '/auth'
+// MongoDB connection
+mongoose
+  .connect(process.env.MONGODB_URI)
+  .then(() => console.log("MongoDB connected"))
+  .catch((error) => console.log("MongoDB connection error:", error));
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server running on port http://localhost:${PORT}`);
+app.listen(3000, () => {
+  console.log("Server is running on http://localhost:3000");
 });
