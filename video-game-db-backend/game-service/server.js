@@ -9,8 +9,16 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// ✅ Serve search at `/api/search`
-app.use('/api', gameRoutes); 
+app.use('/api', gameRoutes);
+
+// server.js
+app.get('/api/user', (req, res) => {
+    if (req.session.username) {
+        return res.json({ username: req.session.username });
+    } else {
+        return res.status(401).json({ message: 'Not logged in' });
+    }
+});
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
