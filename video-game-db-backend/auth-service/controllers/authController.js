@@ -3,6 +3,7 @@ const qs = require('querystring');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');  // Assuming you have a User model
 
+
 const authController = {
 
   // OAuth login - Redirect to Discord OAuth page
@@ -83,7 +84,7 @@ const authController = {
       const token = jwt.sign(
         { discordId: user.discordId, username: user.username },
         process.env.JWT_SECRET,
-        { expiresIn: '1h' }
+        { expiresIn: '1d' }
       );
       console.log("JWT token generated for user:", token); // Log the generated JWT token
 
