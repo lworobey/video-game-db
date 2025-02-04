@@ -4,7 +4,7 @@ import axios from "axios";
 import "./header.css";
 import { FaDiscord, FaHome } from "react-icons/fa";
 
-const Header = ({ setSearchResults }) => {
+const Header = ({ toggleDarkMode }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setLocalSearchResults] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -221,6 +221,9 @@ const Header = ({ setSearchResults }) => {
           <NavLink to="/collection">
             <button type="button" className="collection-button">Collection</button>
           </NavLink>
+
+          {/* Dark Mode Toggle */}
+          <button className="dark-mode-toggle" onClick={toggleDarkMode}>🌙</button> {/* Small moon icon for dark mode */}
         </div>
       </nav>
     </header>
