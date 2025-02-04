@@ -182,44 +182,41 @@ const addToCollection = async (req, res) => {
             console.error('Attempted to add game without required fields');
             return res.status(400).json({ error: "Game ID and name are required" });
         }
-
-        // Check if game already exists in database
-        const existingGame = await Game.findOne({ igdbId: id });
-        if (existingGame) {
-            console.log(`Game ${id} already exists in collection`);
-            return res.status(409).json({ error: "Game is already in the collection" });
+        // Check if game already exists in user's collection
+        const userTrack = await User.findOne({username});
+        const userCollection = await Collection.findOne({userId: userTrack._id});
+        if (userCollection) {
+            const gameExists = userCollection.games.some(game => game.gameId.igdbId === id);
+            if (gameExists) {
+                console.log(`Game ${id} already exists in user's collection`);
+                return res.status(409).json({ error: "Game is already in your collection" });
+            }
         }
 
         // Create new game document
-        const newGame = new Game({
+        const gameId =  Game.findOneAndUpdate({
             igdbId: id,
+        }, {
             name,
-            cover,
-            description,
-            releaseDate,
-            platforms,
-            genres,
-            rating: null,
-            timePlayed: null
-        });
+        } , {upsert: true});
 
         // Save to database
-        const newGameId = (await newGame.save())._id;
+        // const newGameId = (await newGame.save())._id;
 
         console.log(username)
         // taking username, and grabbing the userId from our database
-        const userTrack = await User.findOne({username})
+        //const userTrack = await User.findOne({username})
         console.log(userTrack)
 
         const userId = userTrack._id
         console.log(userId)
         //check if collection exist
-        const userCollection = await Collection.findOneAndUpdate({user: userId}, {$push: {games: newGameId}}, {upsert: true})
+        userCollection = await Collection.findOneAndUpdate({user: userId}, {$push: {games: gameId}}, {upsert: true})
 
         await userCollection.save()
 
         console.log(`Added game ${name} (${id}) to collection`);
-        res.status(201).json(newGame);
+        res.status(201).json(gameId);
     } catch (error) {
         console.error('Error adding game to collection:', error);
         res.status(500).json({ error: 'Failed to add game to collection' });
