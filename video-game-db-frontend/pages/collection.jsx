@@ -17,11 +17,26 @@ const Collection = ({ setSearchResults }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    const username = localStorage.getItem("username");
+    if (!username) {
+      setError("Please log in to view your collection");
+      return;
+    }
+
     console.log('Fetching collections with sort option:', sortOption);
     axios.get(`http://localhost:3001/api/collections${sortOption ? `?sort=${sortOption}` : ''}`)
       .then((response) => {
         console.log('Successfully fetched collections:', response.data);
-        setCollections(Array.isArray(response.data) ? response.data : []);
+        // Transform the MongoDB data structure to match frontend expectations
+        const transformedCollections = response.data.map(collection => ({
+          id: collection._id,
+          name: collection.name,
+          rating: collection.rating,
+          timePlayed: collection.timePlayed || 0,
+          cover: collection.cover,
+          igdbId: collection.igdbId
+        }));
+        setCollections(transformedCollections);
         setError(null);
       })
       .catch((error) => {
@@ -45,18 +60,26 @@ const Collection = ({ setSearchResults }) => {
   const handleUpdate = async (collectionId) => {
     try {
       console.log('Updating collection:', collectionId);
-      const timePlayedInSeconds = newTimePlayed.hours * 3600 + newTimePlayed.minutes * 60 + newTimePlayed.seconds;
+      const timePlayedInSeconds = 
+        (newTimePlayed.hours || 0) * 3600 + 
+        (newTimePlayed.minutes || 0) * 60 + 
+        (newTimePlayed.seconds || 0);
+      
       const updatedCollection = { 
         name: newName, 
-        rating: newRating === "" ? null : newRating, // If empty, fallback to null
+        rating: newRating === "" ? null : parseFloat(newRating), // Convert to number or null
         timePlayed: timePlayedInSeconds 
       };
       
       console.log('Sending update with data:', updatedCollection);
-      await axios.put(`http://localhost:3001/api/collections/${collectionId}`, updatedCollection);
+      const response = await axios.put(`http://localhost:3001/api/collections/${collectionId}`, updatedCollection);
       
       setCollections(collections.map(col =>
-        col.id === collectionId ? { ...col, ...updatedCollection } : col
+        col.id === collectionId ? { 
+          ...col, 
+          ...response.data,
+          id: response.data._id // Map MongoDB _id to frontend id
+        } : col
       ));
       setEditCollection(null);
       setError(null);
@@ -100,14 +123,18 @@ const Collection = ({ setSearchResults }) => {
     // Ensure rating is between 1 and 10, or null if empty
     if (value === "") {
       setNewRating(null); // If empty, fallback to null
-    } else if (value >= 1 && value <= 10) {
-      setNewRating(value); // Set value if within range
     } else {
-      console.warn('Invalid rating value:', value);
+      const numValue = parseFloat(value);
+      if (numValue >= 1 && numValue <= 10) {
+        setNewRating(numValue); // Set value if within range
+      } else {
+        console.warn('Invalid rating value:', value);
+      }
     }
   };
 
   const formatTime = (seconds) => {
+    if (!seconds) return '0h 0m 0s';
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const remainingSeconds = seconds % 60;
@@ -129,8 +156,8 @@ const Collection = ({ setSearchResults }) => {
           <option value="za">Z-A</option>
           <option value="highestRated">Highest Rated</option>
           <option value="lowestRated">Lowest Rated</option>
-          <option value="mostTimePlayed">Most Time Played</option>
-          <option value="leastTimePlayed">Least Time Played</option>
+          <option value="mostPlayed">Most Time Played</option>
+          <option value="leastPlayed">Least Time Played</option>
         </select>
       </div>
 
