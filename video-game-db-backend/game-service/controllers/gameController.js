@@ -1,7 +1,7 @@
 const axios = require('axios');
 const { getCachedToken } = require('../utils/tokenUtils');
 const Game = require('../models/Game');
-const User = require('../../auth-service/models/User')
+const User = require('../models/User')
 const Collection = require('../models/Collection')
 require('dotenv').config();
 
@@ -205,10 +205,13 @@ const addToCollection = async (req, res) => {
 
         // Save to database
         const newGameId = (await newGame.save())._id;
-        
+
         console.log(username)
         // taking username, and grabbing the userId from our database
-        const userId = await User.findOne({username})
+        const userTrack = await User.findOne({username})
+        console.log(userTrack)
+
+        const userId = userTrack._id
         console.log(userId)
         //check if collection exist
         const userCollection = await Collection.findOneAndUpdate({user: userId}, {$push: {games: newGameId}}, {upsert: true})
@@ -222,6 +225,13 @@ const addToCollection = async (req, res) => {
         res.status(500).json({ error: 'Failed to add game to collection' });
     }
 };
+
+const SanitycheckUser =  async (req, res) => {
+    const username = "jujubeezela"
+    const user = await User.findOne({username});
+    console.log(user)
+    res.status(418).json({error: 'Thing is weird'})
+}
 
 const updateCollection = (req, res) => {
     const { id } = req.params;
@@ -257,4 +267,4 @@ const deleteCollection = (req, res) => {
     res.status(200).json({ message: "Game removed from collections" });
 };
 
-module.exports = { getAccessToken, fetchNewReleases, fetchTopRated, searchGames, getCollections, updateCollection, addToCollection, deleteCollection, sortCollections };
+module.exports = { getAccessToken, fetchNewReleases, fetchTopRated, searchGames, getCollections, updateCollection, addToCollection, deleteCollection, sortCollections, SanitycheckUser };
