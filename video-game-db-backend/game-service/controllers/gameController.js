@@ -162,6 +162,10 @@ const sortCollections = (collections, sortOption) => {
             return collections.sort((a, b) => b.rating - a.rating);
         case "lowestRated":
             return collections.sort((a, b) => a.rating - b.rating);
+        case "mostPlayed":
+            return collections.sort((a, b) => b.timePlayed - a.timePlayed);
+        case "leastPlayed":
+            return collections.sort((a, b) => a.timePlayed - b.timePlayed);
         default:
             console.log('Using default sort order');
             return collections;
