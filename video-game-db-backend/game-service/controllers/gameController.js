@@ -188,21 +188,24 @@ const addToCollection = async (req, res) => {
         }
         // Check if game already exists in user's collection
         const userTrack = await User.findOne({username});
-        const userCollection = await Collection.findOne({userId: userTrack._id});
-        if (userCollection) {
-            const gameExists = userCollection.games.some(game => game.gameId.igdbId === id);
-            if (gameExists) {
+        const findinCollection = await Collection.findOne({user: userTrack._id});
+        if (findinCollection) {
+            const existingGame = await Collection.findOne({
+                gameId: { $in: findinCollection.games },
+                igdbId: id
+            });
+            if (existingGame) {
                 console.log(`Game ${id} already exists in user's collection`);
                 return res.status(409).json({ error: "Game is already in your collection" });
             }
         }
 
         // Create new game document
-        const gameId =  Game.findOneAndUpdate({
+        const gameId =  (await Game.findOneAndUpdate({
             igdbId: id,
         }, {
             name,
-        } , {upsert: true});
+        } , {upsert: true}))._id;
 
         // Save to database
         // const newGameId = (await newGame.save())._id;
@@ -215,7 +218,7 @@ const addToCollection = async (req, res) => {
         const userId = userTrack._id
         console.log(userId)
         //check if collection exist
-        userCollection = await Collection.findOneAndUpdate({user: userId}, {$push: {games: gameId}}, {upsert: true})
+        const userCollection = await Collection.findOneAndUpdate({userId}, {$push: {games: {gameId}}}, {upsert: true} )
 
         await userCollection.save()
 
