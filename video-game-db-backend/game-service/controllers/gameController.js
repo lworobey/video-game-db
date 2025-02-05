@@ -291,9 +291,11 @@ const deleteCollection = async (req, res) => {
         const { id } = req.params;
         console.log(`Attempting to delete game ${id} from collection`);
 
+        // Remove the game from the collection using _id
         const result = await Collection.findOneAndUpdate(
-            { "games.gameId": id },
-            { $pull: { games: { gameId: id } } }
+            { "games._id": id },
+            { $pull: { games: { _id: id } } },
+            { new: true }
         );
 
         if (!result) {
