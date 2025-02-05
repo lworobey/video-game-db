@@ -225,19 +225,15 @@ const addToCollection = async (req, res) => {
       console.error("Attempted to add game without required fields");
       return res.status(400).json({ error: "Game ID and name are required" });
     }
-
     // Create new game document
-    const gameId = (
+    const gameToAdd = (
       await Game.findOneAndUpdate(
-        {
-          igdbId: id,
-        },
-        {
-          name,
-        },
-        { upsert: true }
+        { igdbId: id },
+        {name},
+        { upsert: true, new: true }
       )
-    )._id;
+    );
+
 
     // Check if game already exists in user's collection
     const userTrack = await User.findOne({ username });
@@ -261,8 +257,7 @@ const addToCollection = async (req, res) => {
     }
 
     // Save to database
-    // const newGameId = (await newGame.save())._id;
-
+    const gameId = ((await gameToAdd.save())._id);
     console.log("username: ", username);
     // taking username, and grabbing the userId from our database
     //const userTrack = await User.findOne({username})
