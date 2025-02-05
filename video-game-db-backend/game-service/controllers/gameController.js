@@ -244,14 +244,28 @@ const addToCollection = async (req, res) => {
 const updateCollection = async (req, res) => {
     try {
         const { id } = req.params;
-        const { rating, timePlayed } = req.body;
-        console.log(`Updating game ${id} in collection`);
+        const { rating, timePlayed, username } = req.body;
+        console.log(`Updating game ${id} in collection for user ${username}`);
 
+        if (!username) {
+            return res.status(400).json({ error: "Username is required" });
+        }
+
+        // Find the user first
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        // Update the specific game in the collection
         const updatedCollection = await Collection.findOneAndUpdate(
-            { "games.gameId": id },
+            { 
+                userId: user._id,
+                "games._id": id 
+            },
             { 
                 $set: {
-                    "games.$.rating": rating,
+                    "games.$.userRating": rating,
                     "games.$.timePlayed": timePlayed
                 }
             },
@@ -259,12 +273,12 @@ const updateCollection = async (req, res) => {
         ).populate('games.gameId');
 
         if (!updatedCollection) {
-            console.error(`Game ${id} not found in collection`);
-            return res.status(404).json({ error: "Game not found in collections" });
+            return res.status(404).json({ error: "Game not found in collection" });
         }
 
-        const updatedGame = updatedCollection.games.find(game => game.gameId._id.toString() === id);
-        console.log(`Successfully updated game ${id}`);
+        // Find the updated game in the collection
+        const updatedGame = updatedCollection.games.find(game => game._id.toString() === id);
+        console.log(`Successfully updated game ${id} for user ${username}`);
         res.json(updatedGame);
     } catch (error) {
         console.error("Error updating collection:", error);

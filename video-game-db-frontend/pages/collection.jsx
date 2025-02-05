@@ -109,20 +109,30 @@ const Collection = ({ setSearchResults }) => {
         (newTimePlayed.minutes || 0) * 60 + 
         (newTimePlayed.seconds || 0);
       
+      const username = localStorage.getItem("username");
       const updatedCollection = { 
-        name: newName, 
+        username,
         rating: newRating === "" ? null : parseFloat(newRating), // Convert to number or null
         timePlayed: timePlayedInSeconds 
       };
       
       console.log('Sending update with data:', updatedCollection);
-      const response = await axios.put(`http://localhost:3001/api/collections/${collectionId}`, updatedCollection);
+      const token = localStorage.getItem("jwt_token");
+      const response = await axios.put(
+        `http://localhost:3001/api/collections/${collectionId}`, 
+        updatedCollection,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
       
       setCollections(collections.map(col =>
         col.id === collectionId ? { 
           ...col, 
-          ...response.data,
-          id: response.data._id // Map MongoDB _id to frontend id
+          rating: response.data.userRating,
+          timePlayed: response.data.timePlayed,
         } : col
       ));
       setEditCollection(null);
