@@ -113,7 +113,37 @@ body.dark .game-info p {
 
 .time-fields {
   display: flex;
-  gap: 5px;
+  gap: 8px;
+  align-items: center;
+}
+
+.time-field {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.time-field input {
+  width: 50px;
+  padding: 4px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.time-field span {
+  color: var(--text-secondary, #666);
+  font-size: 0.9em;
+}
+
+body.dark .time-field span {
+  color: var(--text-secondary-dark, #ccc);
+}
+
+.time-field input::-webkit-inner-spin-button,
+.time-field input::-webkit-outer-spin-button {
+  opacity: 1;
+  height: 20px;
 }
 
 .edit-form button {
