@@ -15,7 +15,7 @@ const GameCard = ({
   onTimeChange,
   formatTime 
 }) => {
-  console.log("Game data received in GameCard:", game);
+
   
   // Access the game data directly since we've already structured it
   const name = game.name || game.gameId?.name || 'Unknown Game';
@@ -23,7 +23,6 @@ const GameCard = ({
   const rating = game.rating || game.userRating || 'N/A';
   const timePlayed = game.timePlayed || 0;
 
-  console.log("Processed game properties:", { name, cover, rating, timePlayed });
 
   return (
     <div className="game-card">
