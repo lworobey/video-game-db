@@ -122,12 +122,13 @@ const searchGames = async (req, res) => {
         res.status(500).json({ error: "Failed to fetch games" });
     }
 };
+
 const getCollections = async (req, res) => {
     try {
         console.log("Fetching collections...");
         console.log("Query parameters:", req.query);
         const { sort } = req.query;
-        const { username } = req.query; // Use req.query to get username
+        const { username } = req.query;
         console.log("Username:", username);
 
         if (!username) {
@@ -162,20 +163,25 @@ const getCollections = async (req, res) => {
 const sortCollections = (games, sortOption) => {
     console.log(`Sorting collections with option: ${sortOption}`);
     switch (sortOption) {
+        case "none":
+            return games;
         case "az":
-            return games.sort((a, b) => a.gameId.name.localeCompare(b.gameId.name));
+            return games.sort((a, b) => 
+                (a.gameId?.name || '').localeCompare(b.gameId?.name || '')
+            );
         case "za":
-            return games.sort((a, b) => b.gameId.name.localeCompare(a.gameId.name));
-        case "highestRated":
-            return games.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-        case "lowestRated":
-            return games.sort((a, b) => (a.rating || 0) - (b.rating || 0));
+            return games.sort((a, b) => 
+                (b.gameId?.name || '').localeCompare(a.gameId?.name || '')
+            );
         case "mostPlayed":
             return games.sort((a, b) => (b.timePlayed || 0) - (a.timePlayed || 0));
         case "leastPlayed":
             return games.sort((a, b) => (a.timePlayed || 0) - (b.timePlayed || 0));
+        case "highestRated":
+            return games.sort((a, b) => (b.userRating || 0) - (a.userRating || 0));
+        case "lowestRated":
+            return games.sort((a, b) => (a.userRating || 0) - (b.userRating || 0));
         default:
-            console.log("Using default sort order");
             return games;
     }
 };
@@ -251,13 +257,11 @@ const updateCollection = async (req, res) => {
             return res.status(400).json({ error: "Username is required" });
         }
 
-        // Find the user first
         const user = await User.findOne({ username });
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
 
-        // Update the specific game in the collection
         const updatedCollection = await Collection.findOneAndUpdate(
             { 
                 userId: user._id,
@@ -276,7 +280,6 @@ const updateCollection = async (req, res) => {
             return res.status(404).json({ error: "Game not found in collection" });
         }
 
-        // Find the updated game in the collection
         const updatedGame = updatedCollection.games.find(game => game._id.toString() === id);
         console.log(`Successfully updated game ${id} for user ${username}`);
         res.json(updatedGame);
@@ -291,7 +294,6 @@ const deleteCollection = async (req, res) => {
         const { id } = req.params;
         console.log(`Attempting to delete game ${id} from collection`);
 
-        // Remove the game from the collection using _id
         const result = await Collection.findOneAndUpdate(
             { "games._id": id },
             { $pull: { games: { _id: id } } },
