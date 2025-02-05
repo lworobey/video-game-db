@@ -39,12 +39,12 @@ header h1 {
 
 /* Dark mode styles */
 body.dark {
-  background-color: #121212;
+  background-color: #181818;
   color: #fff;
 }
 
 body.dark header {
-  background-color: #a46ffa;
+  background-color: rgb(28, 27, 29);
   color: #fff;
 }
 
