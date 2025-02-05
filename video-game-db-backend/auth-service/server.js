@@ -8,7 +8,10 @@ const userRoutes = require('./routes/userRoutes');  // User data routes
 const app = express();
 
 // Middleware setup
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173', // Frontend URL
+  credentials: true // Allow credentials
+}));
 app.use(express.json());  // Parse JSON request bodies
 
 // Request logging middleware

@@ -94,7 +94,14 @@ const authController = {
 
       // Step 6: Redirect to frontend with token
       console.log("Redirecting to frontend with token...");
-      res.redirect(`http://localhost:5173?token=${token}`);
+ // Update the redirect URL to include both token and user info
+ const redirectUrl = new URL('http://localhost:5173');
+ redirectUrl.searchParams.append('token', token);
+ redirectUrl.searchParams.append('username', user.username);
+ redirectUrl.searchParams.append('avatar', user.avatar || '');
+ 
+ console.log("Redirecting to frontend with token and user info...");
+ res.redirect(redirectUrl.toString());
 
     } catch (error) {
       console.error("OAuth callback error details:", error.message);

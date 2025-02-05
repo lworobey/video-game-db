@@ -1,3 +1,16 @@
+/* CSS Variables */
+:root {
+  --card-bg: #fff;
+  --text-color: #333;
+  --text-secondary: #666;
+}
+
+:root[class="dark"] {
+  --card-bg-dark: #2a2a2a;
+  --text-color-dark: #fff;
+  --text-secondary-dark: #ccc;
+}
+
 /* Apply Roboto font globally to the body */
 body {
   font-family: 'Roboto', sans-serif; /* Apply Roboto font globally */

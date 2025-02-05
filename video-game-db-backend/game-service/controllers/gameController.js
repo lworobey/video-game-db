@@ -22,23 +22,17 @@ const fetchNewReleases = async (req, res) => {
         console.log("Fetching new game releases...");
         const token = await getCachedToken();
 
-        // Get current date and 7 days ago for release window (past week)
-        const now = Math.floor(Date.now() / 1000); // Current date in Unix timestamp (seconds)
-        const oneWeekAgo = now - 7 * 24 * 60 * 60; // 7 days ago in Unix timestamp (seconds)
+        const now = Math.floor(Date.now() / 1000);
+        const oneWeekAgo = now - 7 * 24 * 60 * 60;
 
-        console.log(
-            `Fetching releases between ${new Date(oneWeekAgo * 1000)} and ${new Date(
-                now * 1000
-            )}`
-        );
+        console.log(`Fetching releases between ${new Date(oneWeekAgo * 1000)} and ${new Date(now * 1000)}`);
 
-        // Fetch release dates from IGDB API for the past week
         const response = await axios({
             url: "https://api.igdb.com/v4/release_dates",
             method: "POST",
             headers: {
                 Accept: "application/json",
-                "Client-ID": process.env.CLIENT_ID, // Use the correct environment variable
+                "Client-ID": process.env.CLIENT_ID,
                 Authorization: `Bearer ${token}`,
             },
             data: `fields category,checksum,created_at,date,game,human,m,platform,region,status,updated_at,y;
@@ -48,11 +42,9 @@ const fetchNewReleases = async (req, res) => {
 
         console.log(`Found ${response.data.length} release dates`);
 
-        // Process the games and include game details
-        const gameIds = response.data.map((release) => release.game); // Extract game IDs from release dates
+        const gameIds = response.data.map((release) => release.game);
         console.log(`Fetching details for ${gameIds.length} games`);
 
-        // Fetch game details using game IDs
         const gameDetailsResponse = await axios({
             url: "https://api.igdb.com/v4/games",
             method: "POST",
@@ -66,50 +58,25 @@ const fetchNewReleases = async (req, res) => {
                    sort first_release_date desc;`,
         });
 
-        // List of suggestive words to filter out
         const suggestiveWords = [
-            "sexy",
-            "adult",
-            "xxx",
-            "erotic",
-            "mature",
-            "nsfw",
-            "harem",
-            "hentai",
-            "porn",
-            "sex",
+            "sexy", "adult", "xxx", "erotic", "mature", "nsfw", "harem", "hentai", "porn", "sex",
         ];
 
-        // Process cover URLs, include release date, and filter out games with suggestive names
         const games = gameDetailsResponse.data
-            .filter(
-                (game) =>
-                    !suggestiveWords.some((word) =>
-                        game.name.toLowerCase().includes(word)
-                    )
-            )
+            .filter((game) => !suggestiveWords.some((word) => game.name.toLowerCase().includes(word)))
             .map((game) => ({
                 ...game,
-                release_date: response.data.find((release) => release.game === game.id)
-                    ?.date,
-                cover: game.cover
-                    ? {
-                        ...game.cover,
-                        url: game.cover.url
-                            .replace("t_thumb", "t_cover_big")
-                            .replace("//", "https://"),
-                    }
-                    : null,
+                release_date: response.data.find((release) => release.game === game.id)?.date,
+                cover: game.cover ? {
+                    ...game.cover,
+                    url: game.cover.url.replace("t_thumb", "t_cover_big").replace("//", "https://"),
+                } : null,
             }));
 
         console.log(`Returning ${games.length} filtered games`);
         res.json(games);
     } catch (error) {
         console.error("Error fetching new releases:", error);
-        console.error(
-            "Error details:",
-            error.response?.data || "No additional error details"
-        );
         res.status(500).json({ error: "Failed to fetch new releases" });
     }
 };
@@ -152,51 +119,64 @@ const searchGames = async (req, res) => {
         res.json(response.data);
     } catch (error) {
         console.error("Error searching games:", error);
-        console.error(
-            "Error details:",
-            error.response?.data || "No additional error details"
-        );
         res.status(500).json({ error: "Failed to fetch games" });
     }
 };
-
-let collections = [];
-
 const getCollections = async (req, res) => {
     try {
         console.log("Fetching collections...");
+        console.log("Query parameters:", req.query);
         const { sort } = req.query;
-        let sortedCollections = collections;
+        const { username } = req.query; // Use req.query to get username
+        console.log("Username:", username);
+
+        if (!username) {
+            return res.status(400).json({ error: "Username is required" });
+        }
+
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        let collections = await Collection.findOne({ userId: user._id }).populate('games.gameId');
+        
+        if (!collections) {
+            return res.json([]);
+        }
+
+        let sortedGames = collections.games;
         if (sort) {
             console.log(`Sorting collections by: ${sort}`);
-            sortedCollections = sortCollections(sortedCollections, sort);
+            sortedGames = sortCollections(sortedGames, sort);
         }
-        console.log(`Returning ${sortedCollections.length} collections`);
-        res.json(sortedCollections);
+
+        console.log(`Returning ${sortedGames.length} collections`);
+        res.json(sortedGames);
     } catch (error) {
         console.error("Error fetching collections:", error);
         res.status(500).json({ error: "Failed to fetch collections" });
     }
 };
 
-const sortCollections = (collections, sortOption) => {
+const sortCollections = (games, sortOption) => {
     console.log(`Sorting collections with option: ${sortOption}`);
     switch (sortOption) {
         case "az":
-            return collections.sort((a, b) => a.name.localeCompare(b.name));
+            return games.sort((a, b) => a.gameId.name.localeCompare(b.gameId.name));
         case "za":
-            return collections.sort((a, b) => b.name.localeCompare(a.name));
+            return games.sort((a, b) => b.gameId.name.localeCompare(a.gameId.name));
         case "highestRated":
-            return collections.sort((a, b) => b.rating - a.rating);
+            return games.sort((a, b) => (b.rating || 0) - (a.rating || 0));
         case "lowestRated":
-            return collections.sort((a, b) => a.rating - b.rating);
+            return games.sort((a, b) => (a.rating || 0) - (b.rating || 0));
         case "mostPlayed":
-            return collections.sort((a, b) => b.timePlayed - a.timePlayed);
+            return games.sort((a, b) => (b.timePlayed || 0) - (a.timePlayed || 0));
         case "leastPlayed":
-            return collections.sort((a, b) => a.timePlayed - b.timePlayed);
+            return games.sort((a, b) => (a.timePlayed || 0) - (b.timePlayed || 0));
         default:
             console.log("Using default sort order");
-            return collections;
+            return games;
     }
 };
 
@@ -214,61 +194,42 @@ const addToCollection = async (req, res) => {
         } = req.body;
 
         if (!username) {
-            console.error("attempted to add game without user data");
-            return res
-                .status(400)
-                .json({ error: "Requires an account to create collection" });
+            console.error("Attempted to add game without user data");
+            return res.status(400).json({ error: "Requires an account to create collection" });
         }
 
-        // check if both of these are fulfilled
         if (!id || !name) {
             console.error("Attempted to add game without required fields");
             return res.status(400).json({ error: "Game ID and name are required" });
         }
 
-        // Create new game document
         const gameToAdd = await Game.findOneAndUpdate(
-            {igdbId: id},
-            {name},
+            { igdbId: id },
+            { name },
             { upsert: true, new: true }
         );
-        console.log("gameToAdd:", gameToAdd);
 
         const gameId = (await gameToAdd.save())._id;
-        console.log("gameId:", gameId);
-        // Check if game already exists in user's collection
+
         const userTrack = await User.findOne({ username });
         const findinCollection = await Collection.findOne({
             userId: userTrack._id,
         });
-        console.log("find in Collection:", findinCollection);
-        const gameToFind = await Game.findOne({ igdbId: id });
-        console.log("game to find:", gameToFind);
+
         if (findinCollection) {
             const existingGame = await Collection.findOne({
-                "games.gameId": gameToFind._id,
+                "games.gameId": gameToAdd._id,
             });
-            console.log("existingGame:", existingGame);
             if (existingGame) {
                 console.log(`Game ${id} already exists in user's collection`);
-                return res
-                    .status(409)
-                    .json({ error: "Game is already in your collection" });
+                return res.status(409).json({ error: "Game is already in your collection" });
             }
         }
 
-
-        console.log("username: ", username);
-        // taking username, and grabbing the userId from our database
-        //const userTrack = await User.findOne({username})
-        console.log("userTrack:", userTrack);
-
         const userId = userTrack._id;
-        console.log("userId:", userId);
-        //check if collection exist
         const userCollection = await Collection.findOneAndUpdate(
             { userId },
-            { $push: { games: { gameId: gameToFind._id } } },
+            { $push: { games: { gameId: gameToAdd._id } } },
             { upsert: true, new: true }
         );
 
@@ -280,46 +241,58 @@ const addToCollection = async (req, res) => {
     }
 };
 
-const SanitycheckUser = async (req, res) => {
-    const username = "jujubeezela";
-    const user = await User.findOne({ username });
-    console.log(user);
-    res.status(418).json({ error: "Thing is weird" });
+const updateCollection = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { rating, timePlayed } = req.body;
+        console.log(`Updating game ${id} in collection`);
+
+        const updatedCollection = await Collection.findOneAndUpdate(
+            { "games.gameId": id },
+            { 
+                $set: {
+                    "games.$.rating": rating,
+                    "games.$.timePlayed": timePlayed
+                }
+            },
+            { new: true }
+        ).populate('games.gameId');
+
+        if (!updatedCollection) {
+            console.error(`Game ${id} not found in collection`);
+            return res.status(404).json({ error: "Game not found in collections" });
+        }
+
+        const updatedGame = updatedCollection.games.find(game => game.gameId._id.toString() === id);
+        console.log(`Successfully updated game ${id}`);
+        res.json(updatedGame);
+    } catch (error) {
+        console.error("Error updating collection:", error);
+        res.status(500).json({ error: "Failed to update collection" });
+    }
 };
 
-const updateCollection = (req, res) => {
-    const { id } = req.params;
-    const { rating, timePlayed } = req.body;
-    console.log(`Updating game ${id} in collection`);
-    const gameIndex = collections.findIndex((game) => game.id == id);
+const deleteCollection = async (req, res) => {
+    try {
+        const { id } = req.params;
+        console.log(`Attempting to delete game ${id} from collection`);
 
-    if (gameIndex === -1) {
-        console.error(`Game ${id} not found in collection`);
-        return res.status(404).json({ error: "Game not found in collections" });
+        const result = await Collection.findOneAndUpdate(
+            { "games.gameId": id },
+            { $pull: { games: { gameId: id } } }
+        );
+
+        if (!result) {
+            console.error(`Game ${id} not found in collection`);
+            return res.status(404).json({ error: "Game not found in collections" });
+        }
+
+        console.log(`Successfully removed game ${id} from collection`);
+        res.status(200).json({ message: "Game removed from collections" });
+    } catch (error) {
+        console.error("Error deleting from collection:", error);
+        res.status(500).json({ error: "Failed to delete from collection" });
     }
-
-    collections[gameIndex] = {
-        ...collections[gameIndex],
-        rating: rating !== undefined ? rating : collections[gameIndex].rating,
-        timePlayed:
-            timePlayed !== undefined ? timePlayed : collections[gameIndex].timePlayed,
-    };
-
-    console.log(`Successfully updated game ${id}`);
-    res.json(collections[gameIndex]);
-};
-
-const deleteCollection = (req, res) => {
-    const { id } = req.params;
-    console.log(`Attempting to delete game ${id} from collection`);
-    const index = collections.findIndex((game) => game.id == id);
-    if (index === -1) {
-        console.error(`Game ${id} not found in collection`);
-        return res.status(404).json({ error: "Game not found in collections" });
-    }
-    collections.splice(index, 1);
-    console.log(`Successfully removed game ${id} from collection`);
-    res.status(200).json({ message: "Game removed from collections" });
 };
 
 module.exports = {
@@ -331,6 +304,5 @@ module.exports = {
     updateCollection,
     addToCollection,
     deleteCollection,
-    sortCollections,
-    SanitycheckUser,
+    sortCollections
 };
