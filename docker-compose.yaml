@@ -1,0 +1,47 @@
+services:
+  frontend:
+    build:
+      context: ./video-game-db-frontend
+      dockerfile: Dockerfile
+    ports:
+      - 5173:5173
+    env_file:
+      - ./video-game-db-frontend/.env
+    environment:
+      - VITE_API_URL=${VITE_API_URL}
+    depends_on:
+      - auth-service
+      - game-service
+      
+  game-service:
+    build:
+      context: ./video-game-db-backend/game-service
+      dockerfile: Dockerfile
+    ports:
+      - 3001:3001
+    env_file:
+      - ./video-game-db-backend/game-service/.env
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+      - PORT=${PORT}
+      - CLIENT_ID=${CLIENT_ID}
+      - CLIENT_SECRET=${CLIENT_SECRET}
+      - JWT_SECRET=${JWT_SECRET}
+    
+
+  
+  auth-service:
+    build:
+      context: ./video-game-db-backend/auth-service
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    env_file:
+      - ./video-game-db-backend/auth-service/.env
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+      - PORT=${PORT}
+      - DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}
+      - DISCORD_CLIENT_SECRET=${DISCORD_CLIENT_SECRET}
+      - JWT_SECRET=${JWT_SECRET}
+

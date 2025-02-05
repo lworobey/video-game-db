@@ -5,6 +5,7 @@ const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');  // Authentication routes
 const userRoutes = require('./routes/userRoutes');  // User data routes
 
+const PORT = process.env.PORT || 3000;
 const app = express();
 
 // Middleware setup
@@ -30,6 +31,6 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((error) => console.log("MongoDB connection error:", error));
 
-app.listen(3000, () => {
-  console.log("Server is running on http://localhost:3000");
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT} `);
 });
