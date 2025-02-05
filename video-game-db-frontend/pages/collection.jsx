@@ -41,24 +41,26 @@ const Collection = ({ setSearchResults }) => {
         let sortedGames = [...response.data];
         
         // Map the data to ensure correct structure
-        sortedGames = sortedGames.map(game => ({
-          id: game._id,
-          name: game.gameId?.name,
-          cover: game.gameId?.cover,
-          rating: game.userRating,
-          timePlayed: game.timePlayed,
-          gameId: game.gameId
-        }));
+        sortedGames = sortedGames.map(game => {
+          console.log("Processing game:", game);
+          return {
+            id: game._id,
+            name: game.gameId?.name || "Unknown Game",
+            cover: game.gameId?.cover,
+            rating: game.userRating,
+            timePlayed: game.timePlayed,
+            gameId: game.gameId,
+            // Keep the original data for reference
+            _original: game
+          };
+        });
 
         console.log("Games after mapping:", sortedGames);
 
         switch (sortOption) {
           case "name":
             sortedGames.sort((a, b) => {
-              // Access name through gameId if it exists
-              const nameA = a.gameId?.name || a.name || '';
-              const nameB = b.gameId?.name || b.name || '';
-              return nameA.localeCompare(nameB);
+              return (a.name || '').localeCompare(b.name || '');
             });
             break;
           case "rating":

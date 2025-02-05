@@ -80,9 +80,16 @@ const Header = ({ toggleDarkMode }) => {
 
     console.log(`Attempting to add game "${game.name}" to collection...`);
     try {
-      const token = localStorage.getItem('jwt_token'); // Get the JWT token
+      const token = localStorage.getItem('jwt_token');
+      const username = localStorage.getItem('username');
+      
       if (!token) {
         console.error('No authentication token found');
+        return;
+      }
+
+      if (!username) {
+        console.error('No username found');
         return;
       }
 
@@ -92,6 +99,7 @@ const Header = ({ toggleDarkMode }) => {
           id: game.id,
           name: game.name,
           cover: game.cover ? game.cover.url : null,
+          username: username
         },
         {
           headers: {

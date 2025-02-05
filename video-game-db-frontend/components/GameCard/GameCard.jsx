@@ -18,9 +18,9 @@ const GameCard = ({
   console.log("Game data received in GameCard:", game);
   
   // Access the game data directly since we've already structured it
-  const name = game.name || 'Unknown Game';
-  const cover = game.cover?.url;
-  const rating = game.rating || 'N/A';
+  const name = game.name || game.gameId?.name || 'Unknown Game';
+  const cover = game.cover?.url || game.gameId?.cover?.url;
+  const rating = game.rating || game.userRating || 'N/A';
   const timePlayed = game.timePlayed || 0;
 
   console.log("Processed game properties:", { name, cover, rating, timePlayed });
