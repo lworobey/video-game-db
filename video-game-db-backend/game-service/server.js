@@ -4,19 +4,25 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const gameRoutes = require('./routes/gameRoutes');
 
+
 const app = express();
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173', // Frontend URL
+  credentials: true // Allow credentials
+}));
 
 // Request logging middleware
 app.use((req, res, next) => {
-    console.log(`${req.method} ${req.originalUrl} - Request received`);
+    console.log(`${req.method} ${req.originalUrl}  - Request received`);
   next();
 });
 
+
 app.use('/api', gameRoutes);
+
 
 // server.js
 app.get('/api/user', (req, res) => {

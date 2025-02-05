@@ -11,6 +11,4 @@ router.post('/collections', addToCollection);
 router.put('/collections/:id', updateCollection);
 router.delete('/collections/:id', deleteCollection);
 
-router.get('/sanity', SanitycheckUser)
-
 module.exports = router;
