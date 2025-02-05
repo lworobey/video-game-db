@@ -146,13 +146,28 @@ const Collection = ({ setSearchResults }) => {
   const handleRemove = async (collectionId) => {
     try {
       console.log('Removing collection:', collectionId);
-      await axios.delete(`http://localhost:3001/api/collections/${collectionId}`);
-      setCollections(collections.filter(col => col.id !== collectionId));
-      setSearchResults((prevSearchResults) =>
-        prevSearchResults.map((game) =>
-          game.id === collectionId ? { ...game, added: false } : game
-        )
+      const token = localStorage.getItem("jwt_token");
+      
+      await axios.delete(
+        `http://localhost:3001/api/collections/${collectionId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
       );
+      
+      setCollections(collections.filter(col => col.id !== collectionId));
+      
+      // Only update search results if the function exists
+      if (setSearchResults) {
+        setSearchResults((prevSearchResults) =>
+          prevSearchResults.map((game) =>
+            game.id === collectionId ? { ...game, added: false } : game
+          )
+        );
+      }
+      
       setError(null);
       console.log('Successfully removed collection');
     } catch (error) {
