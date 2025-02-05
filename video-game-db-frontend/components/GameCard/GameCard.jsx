@@ -57,29 +57,38 @@ const GameCard = ({
             <div className="time-input">
               <label>Time Played:</label>
               <div className="time-fields">
-                <input
-                  type="number"
-                  min="0"
-                  value={newTimePlayed.hours || ''}
-                  onChange={(e) => onTimeChange('hours', parseInt(e.target.value))}
-                  placeholder="Hours"
-                />
-                <input
-                  type="number"
-                  min="0"
-                  max="59"
-                  value={newTimePlayed.minutes || ''}
-                  onChange={(e) => onTimeChange('minutes', parseInt(e.target.value))}
-                  placeholder="Minutes"
-                />
-                <input
-                  type="number"
-                  min="0"
-                  max="59"
-                  value={newTimePlayed.seconds || ''}
-                  onChange={(e) => onTimeChange('seconds', parseInt(e.target.value))}
-                  placeholder="Seconds"
-                />
+                <div className="time-field">
+                  <input
+                    type="number"
+                    min="0"
+                    value={newTimePlayed.hours ?? ''}
+                    onChange={(e) => onTimeChange('hours', e.target.value)}
+                    placeholder="0"
+                  />
+                  <span>h</span>
+                </div>
+                <div className="time-field">
+                  <input
+                    type="number"
+                    min="0"
+                    max="59"
+                    value={newTimePlayed.minutes ?? ''}
+                    onChange={(e) => onTimeChange('minutes', e.target.value)}
+                    placeholder="0"
+                  />
+                  <span>m</span>
+                </div>
+                <div className="time-field">
+                  <input
+                    type="number"
+                    min="0"
+                    max="59"
+                    value={newTimePlayed.seconds ?? ''}
+                    onChange={(e) => onTimeChange('seconds', e.target.value)}
+                    placeholder="0"
+                  />
+                  <span>s</span>
+                </div>
               </div>
             </div>
             

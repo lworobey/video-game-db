@@ -177,12 +177,28 @@ const Collection = ({ setSearchResults }) => {
   };
 
   const handleTimeChange = (field, value) => {
-    // Ensure the value is a non-negative number, otherwise reset to 0
-    const newValue = value < 0 ? 0 : value;
-    console.log(`Updating ${field} time to:`, newValue);
+    // Handle empty input
+    if (value === '' || isNaN(value)) {
+      setNewTimePlayed(prev => ({
+        ...prev,
+        [field]: ''
+      }));
+      return;
+    }
+
+    // Convert to number and ensure non-negative
+    let numValue = Math.max(0, parseInt(value));
+
+    // Apply limits based on the field
+    if (field === 'minutes' || field === 'seconds') {
+      numValue = Math.min(59, numValue); // Cap minutes and seconds at 59
+    }
+    // No cap on hours, let users input any number of hours
+
+    console.log(`Updating ${field} time to:`, numValue);
     setNewTimePlayed(prev => ({
       ...prev,
-      [field]: newValue,
+      [field]: numValue
     }));
   };
 
