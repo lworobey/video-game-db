@@ -25,6 +25,8 @@ const Header = ({ toggleDarkMode }) => {
       console.log("Found JWT token and username...");
       if (storedUsername) {
         setUsername(storedUsername);
+        // Fetch user's collections
+        fetchUserCollections(storedUsername, token);
       }
       
       // If token exists, fetch user data from the backend
@@ -47,6 +49,27 @@ const Header = ({ toggleDarkMode }) => {
       console.log("No JWT token found, user is not authenticated");
     }
   }, []);
+
+  // Fetch user's collections
+  const fetchUserCollections = async (username, token) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3001/api/collections?username=${username}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      console.log("Fetched user collections:", response.data);
+      setCollections(response.data.map(game => ({
+        id: game.gameId.igdbId, // Use the IGDB ID for comparison
+        ...game
+      })));
+    } catch (error) {
+      console.error("Error fetching user collections:", error);
+    }
+  };
 
   // Handle search input and fetch results
   const handleSearch = async () => {
@@ -110,9 +133,10 @@ const Header = ({ toggleDarkMode }) => {
       );
 
       console.log("Game added successfully:", response.data);
-      setCollections([...collections, response.data]); // Update collection state
-      setLocalSearchResults(
-        searchResults.map((g) =>
+      // Fetch updated collections after adding a game
+      await fetchUserCollections(username, token);
+      setLocalSearchResults(prevResults =>
+        prevResults.map((g) =>
           g.id === game.id ? { ...g, added: true } : g
         )
       );
