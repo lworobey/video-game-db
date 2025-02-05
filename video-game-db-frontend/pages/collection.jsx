@@ -42,7 +42,6 @@ const Collection = ({ setSearchResults }) => {
         
         // Map the data to ensure correct structure
         sortedGames = sortedGames.map(game => {
-          console.log("Processing game:", game);
           return {
             id: game._id,
             name: game.gameId?.name || "Unknown Game",
