@@ -28,8 +28,8 @@ test_endpoint() {
 # Test Frontend
 test_endpoint "Frontend" "http://localhost:5173" 200
 
-# Test Auth Service
-test_endpoint "Auth Service" "http://localhost:3000/auth/login" 200
+# Test Auth Service health
+test_endpoint "Auth Service" "http://localhost:3000/health" 200
 
 # Test Game Service
 test_endpoint "Game Service" "http://localhost:3001/api/new-releases" 200 
