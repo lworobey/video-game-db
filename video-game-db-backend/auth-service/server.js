@@ -10,7 +10,6 @@ const app = express();
 
 // Middleware setup
 app.use(cors({
-  origin: 'http://localhost:5173', // Frontend URL
   credentials: true // Allow credentials
 }));
 app.use(express.json());  // Parse JSON request bodies

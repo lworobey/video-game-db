@@ -95,7 +95,7 @@ const authController = {
       // Step 6: Redirect to frontend with token
       console.log("Redirecting to frontend with token...");
  // Update the redirect URL to include both token and user info
- const redirectUrl = new URL('http://localhost:5173');
+ const redirectUrl = new URL(process.env.FRONTEND_URL);
  redirectUrl.searchParams.append('token', token);
  redirectUrl.searchParams.append('username', user.username);
  redirectUrl.searchParams.append('avatar', user.avatar || '');
