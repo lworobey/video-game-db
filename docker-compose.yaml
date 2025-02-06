@@ -3,7 +3,7 @@ services:
     build:
       context: ./video-game-db-frontend
       dockerfile: Dockerfile
-    image: your-dockerhub-username/vgdb-frontend:latest
+    image: lukeworobey/vgdb-frontend:latest
     ports:
       - 5173:5173
     environment:
@@ -16,7 +16,7 @@ services:
     build:
       context: ./video-game-db-backend/game-service
       dockerfile: Dockerfile
-    image: your-dockerhub-username/vgdb-game:latest
+    image: lukeworobey/vgdb-game:latest
     ports:
       - 3001:3001
     environment:
@@ -32,7 +32,7 @@ services:
     build:
       context: ./video-game-db-backend/auth-service
       dockerfile: Dockerfile
-    image: your-dockerhub-username/vgdb-auth:latest
+    image: lukeworobey/vgdb-auth:latest
     ports:
       - 3000:3000
     environment:
