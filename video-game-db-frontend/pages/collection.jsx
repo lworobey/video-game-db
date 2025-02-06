@@ -163,11 +163,12 @@ const Collection = ({ setSearchResults }) => {
 
   const handleRemove = async (collectionId) => {
     try {
-      console.log('Removing collection:', collectionId);
+      console.log('Removing game from collection:', collectionId);
       const token = localStorage.getItem("jwt_token");
+      const username = localStorage.getItem("username"); // Get username from storage
       
       await axios.delete(
-        `http://localhost:3001/api/collections/${collectionId}`, //being handled in a backend route
+        `http://localhost:3001/api/collections/${collectionId}?username=${username}`, // Add username as query param from backend
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -187,7 +188,7 @@ const Collection = ({ setSearchResults }) => {
       }
       
       setError(null);
-      console.log('Successfully removed collection');
+      console.log('Successfully removed game from collection');
     } catch (error) {
       console.error("Error removing game from collection:", error);
       setError("Failed to remove game. Please try again.");

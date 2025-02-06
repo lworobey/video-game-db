@@ -233,6 +233,7 @@ const addToCollection = async (req, res) => {
 
         // Check if the game is already in the user's collection specifically
         const existingGame = await Collection.findOne({
+            
             userId: userTrack._id,
             "games.gameId": gameToAdd._id
         });
