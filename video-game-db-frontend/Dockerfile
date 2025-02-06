@@ -41,3 +41,6 @@ EXPOSE 5173
 
 # Run the application.
 CMD npm run dev -- --host
+
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:5173 || exit 1

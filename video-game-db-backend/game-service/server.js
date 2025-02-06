@@ -32,6 +32,11 @@ app.get('/api/user', (req, res) => {
     }
 });
 
+// Add near your other routes
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
 .then(() => console.log('Connected to MongoDB'))

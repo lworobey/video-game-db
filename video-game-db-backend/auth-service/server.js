@@ -24,6 +24,11 @@ app.use((req, res, next) => {
 app.use('/auth', authRoutes);  // Authentication routes
 app.use('/api', userRoutes);   // User data routes
 
+// Add near your other routes
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 // MongoDB connection
 mongoose
   .connect(process.env.MONGODB_URI)
