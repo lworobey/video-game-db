@@ -29,9 +29,9 @@ const Collection = ({ setSearchResults }) => {
         }
 
         const username = localStorage.getItem("username");
-        const response = await axios.get(`http://localhost:3001/api/collections?username=${username}`, {
+        const response = await axios.get(`http://localhost:3001/api/collections?username=${username}`, { //attribute a collection to the logged in user
           headers: {
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${token}` //make sure it is the user that is getting their collection
           }
         });
 
@@ -77,7 +77,7 @@ const Collection = ({ setSearchResults }) => {
         }
 
         setCollections(sortedGames);
-        setLoading(false);
+        setLoading(false); //reload the collection not the entire page
       } catch (error) {
         console.error("Error fetching collections:", error);
         setError("Failed to load collections");
@@ -88,7 +88,7 @@ const Collection = ({ setSearchResults }) => {
     fetchCollections();
   }, [sortOption]);
 
-  const handleEdit = (collection) => {
+  const handleEdit = (collection) => { //edit text
     console.log('Editing collection:', collection);
     setEditCollection(collection.id);
     setNewName(collection.name);
@@ -100,7 +100,7 @@ const Collection = ({ setSearchResults }) => {
     }); // Convert timePlayed (in seconds) to hours, minutes, and seconds
   };
 
-  const handleUpdate = async (collectionId) => {
+  const handleUpdate = async (collectionId) => { //save updates
     try {
       console.log('Updating collection:', collectionId);
       const timePlayedInSeconds = 
@@ -149,7 +149,7 @@ const Collection = ({ setSearchResults }) => {
       const token = localStorage.getItem("jwt_token");
       
       await axios.delete(
-        `http://localhost:3001/api/collections/${collectionId}`,
+        `http://localhost:3001/api/collections/${collectionId}`, //being handled in a backend route
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -176,7 +176,7 @@ const Collection = ({ setSearchResults }) => {
     }
   };
 
-  const handleTimeChange = (field, value) => {
+  const handleTimeChange = (field, value) => { //handles edit field of time
     // Handle empty input
     if (value === '' || isNaN(value)) {
       setNewTimePlayed(prev => ({
@@ -217,7 +217,7 @@ const Collection = ({ setSearchResults }) => {
     }
   };
 
-  const formatTime = (seconds) => {
+  const formatTime = (seconds) => { //loading time in hours, minutes, and seconds from database
     if (!seconds) return '0h 0m 0s';
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);

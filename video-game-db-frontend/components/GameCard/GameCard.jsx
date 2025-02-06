@@ -2,7 +2,7 @@ import React from 'react';
 import { FaTrash, FaEdit } from "react-icons/fa";
 import './GameCard.css';
 
-const GameCard = ({ 
+const GameCard = ({ //game card is for each game in the collection
   game, 
   inCollection, 
   onRemoveFromCollection, 
