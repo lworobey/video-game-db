@@ -1,3 +1,6 @@
+# CI/CD Pipeline for Video Game Database
+# Tests and deploys to Docker Hub
+
 name: CI/CD Pipeline
 
 on:
@@ -41,6 +44,7 @@ jobs:
         chmod +x test_api.sh
         ./test_api.sh
         docker compose down
+
 
   deploy:
     needs: test
