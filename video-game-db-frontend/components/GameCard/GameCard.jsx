@@ -18,8 +18,8 @@ const GameCard = ({ //game card is for each game in the collection
 
   
   // Access the game data directly since we've already structured it
-  const name = game.name || game.gameId?.name || 'Unknown Game';
-  const cover = game.cover?.url || game.gameId?.cover?.url;
+  const name = game.name || game.game?.name || 'Unknown Game';
+  const cover = game.cover?.url || game.game?.cover?.url;
   const rating = game.rating || game.userRating || 'N/A';
   const timePlayed = game.timePlayed || 0;
 

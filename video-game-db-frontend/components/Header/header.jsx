@@ -63,7 +63,7 @@ const Header = ({ toggleDarkMode }) => {
       );
       console.log("Collection response data:", response.data);
       setCollections(response.data.map(game => ({
-        id: game.gameId.igdbId, // Use igdbId instead of _id
+        id: game.game.igdbId, // Use igdbId from game reference
         ...game
       })));
     } catch (error) {
@@ -89,7 +89,7 @@ const Header = ({ toggleDarkMode }) => {
 
   // Check if a game is already in the collection
   const isGameInCollection = (gameId) => {
-    const exists = collections.some((game) => game.gameId?.igdbId === gameId);
+    const exists = collections.some((game) => game.game?.igdbId === gameId);
     console.log(`Checking if game ${gameId} is in collection:`, exists);
     return exists;
   };

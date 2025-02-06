@@ -1,21 +1,24 @@
-
 // models/Collection.js (inside game service)
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const CollectionSchema = new mongoose.Schema({
-  userId: {
+  user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',  // Reference to the User model from the auth service
+    ref: "User", // Reference to the User model from the auth service
     required: true,
   },
-  games: [{ gameId:
+
+  games: [
     {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Game',  // Reference to the Game model
-    required: true,
-  },
-  timePlayed: { type: Number, default: null },
-  userRating: { type: Number, default: null}}],
+      game: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Game", // Reference to the Game model
+        required: true,
+      },
+      timePlayed: { type: Number, default: null },
+      userRating: { type: Number, default: null },
+    },
+  ],
 });
 
-module.exports = mongoose.model('Collection', CollectionSchema);
+module.exports = mongoose.model("Collection", CollectionSchema);
