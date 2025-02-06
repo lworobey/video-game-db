@@ -43,11 +43,11 @@ const Collection = ({ setSearchResults }) => {
       sortedGames = sortedGames.map(game => {
         return {
           id: game._id,
-          name: game.gameId?.name || "Unknown Game",
-          cover: game.gameId?.cover,
+          name: game.game?.name || "Unknown Game",
+          cover: game.game?.cover,
           rating: game.userRating,
           timePlayed: game.timePlayed,
-          gameId: game.gameId,
+          game: game.game,
           // Keep the original data for reference
           _original: game
         };
