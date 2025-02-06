@@ -141,6 +141,12 @@ const Header = ({ toggleDarkMode }) => {
         )
       );
       console.log(`Added "${game.name}" to collection!`);
+
+      // Check if we're on the collection page and refresh if necessary
+      if (window.location.pathname === '/collection' && window.refreshCollection) {
+        console.log('On collection page, refreshing collection data...');
+        await window.refreshCollection();
+      }
     } catch (error) {
       console.error("Error adding game to collection:", error);
       if (error.response?.status === 401) {

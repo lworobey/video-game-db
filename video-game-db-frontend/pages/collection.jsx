@@ -8,25 +8,25 @@ const Collection = ({ setSearchResults }) => {
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [sortOption, setSortOption] = useState("name"); // Default sort by name
+  const [sortOption, setSortOption] = useState("none"); // Default to no sorting
   const [editCollection, setEditCollection] = useState(null);
   const [newName, setNewName] = useState("");
   const [newRating, setNewRating] = useState(null); // Default rating is null
   const [newTimePlayed, setNewTimePlayed] = useState({
-    hours: null, 
-    minutes: null, 
+    hours: null,
+    minutes: null,
     seconds: null
   }); // Default timePlayed values to null
 
-  useEffect(() => {
-    const fetchCollections = async () => {
-      try {
-        const token = localStorage.getItem("jwt_token");
-        if (!token) {
-          setError("Please log in to view your collection");
-          setLoading(false);
-          return;
-        }
+  const fetchCollections = async () => {
+    try {
+      const token = localStorage.getItem("jwt_token");
+      if (!token) {
+        setError("Please log in to view your collection");
+        setLoading(false);
+        return;
+      }
+
 
         const username = localStorage.getItem("username");
         const response = await axios.get(`http://localhost:3001/api/collections?username=${username}`, { //attribute a collection to the logged in user
@@ -35,60 +35,77 @@ const Collection = ({ setSearchResults }) => {
           }
         });
 
-        console.log("Collection response data:", response.data);
-        
-        // Sort the collections based on the selected option
-        let sortedGames = [...response.data];
-        
-        // Map the data to ensure correct structure
-        sortedGames = sortedGames.map(game => {
-          return {
-            id: game._id,
-            name: game.gameId?.name || "Unknown Game",
-            cover: game.gameId?.cover,
-            rating: game.userRating,
-            timePlayed: game.timePlayed,
-            gameId: game.gameId,
-            // Keep the original data for reference
-            _original: game
-          };
-        });
 
-        console.log("Games after mapping:", sortedGames);
+      console.log("Collection response data:", response.data);
+      
+      // Sort the collections based on the selected option
+      let sortedGames = [...response.data];
+      
+      // Map the data to ensure correct structure
+      sortedGames = sortedGames.map(game => {
+        return {
+          id: game._id,
+          name: game.gameId?.name || "Unknown Game",
+          cover: game.gameId?.cover,
+          rating: game.userRating,
+          timePlayed: game.timePlayed,
+          gameId: game.gameId,
+          // Keep the original data for reference
+          _original: game
+        };
+      });
 
-        switch (sortOption) {
-          case "name":
-            sortedGames.sort((a, b) => {
-              return (a.name || '').localeCompare(b.name || '');
-            });
-            break;
-          case "rating":
-            sortedGames.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-            break;
-          case "releaseDate":
-            sortedGames.sort((a, b) => {
-              const dateA = a.released || a.gameId?.released || 0;
-              const dateB = b.released || b.gameId?.released || 0;
-              return new Date(dateB) - new Date(dateA);
-            });
-            break;
-          default:
-            break;
-        }
+      console.log("Games after mapping:", sortedGames);
 
-        setCollections(sortedGames);
-        setLoading(false); //reload the collection not the entire page
-      } catch (error) {
-        console.error("Error fetching collections:", error);
-        setError("Failed to load collections");
-        setLoading(false);
+
+      switch (sortOption) {
+        case "az":
+          sortedGames.sort((a, b) => {
+            return (a.name || '').localeCompare(b.name || '');
+          });
+          break;
+        case "za":
+          sortedGames.sort((a, b) => {
+            return (b.name || '').localeCompare(a.name || '');
+          });
+          break;
+        case "mostPlayed":
+          sortedGames.sort((a, b) => (b.timePlayed || 0) - (a.timePlayed || 0));
+          break;
+        case "leastPlayed":
+          sortedGames.sort((a, b) => (a.timePlayed || 0) - (b.timePlayed || 0));
+          break;
+        case "highestRated":
+          sortedGames.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+          break;
+        case "lowestRated":
+          sortedGames.sort((a, b) => (a.rating || 0) - (b.rating || 0));
+          break;
+        default:
+          break;
+
       }
+
+      setCollections(sortedGames);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching collections:", error);
+      setError("Failed to load collections");
+      setLoading(false);
+    }
+  };
+  // Export the refresh function to the parent component
+  useEffect(() => {
+    // Add the refresh function to window object so Header can access it
+    window.refreshCollection = fetchCollections;
+    
+    // Cleanup
+    return () => {
+      delete window.refreshCollection;
     };
+  }, [sortOption]); // Include sortOption in dependencies since it's used in fetchCollections
 
-    fetchCollections();
-  }, [sortOption]);
-
-  const handleEdit = (collection) => { //edit text
+  const handleEdit = (collection) => {//edit text
     console.log('Editing collection:', collection);
     setEditCollection(collection.id);
     setNewName(collection.name);
@@ -245,9 +262,13 @@ const Collection = ({ setSearchResults }) => {
           value={sortOption} 
           onChange={(e) => setSortOption(e.target.value)}
         >
-          <option value="name">Name</option>
-          <option value="rating">Rating</option>
-          <option value="releaseDate">Release Date</option>
+          <option value="none">None</option>
+          <option value="az">A-Z</option>
+          <option value="za">Z-A</option>
+          <option value="mostPlayed">Most Time Played</option>
+          <option value="leastPlayed">Least Time Played</option>
+          <option value="highestRated">Top Rated</option>
+          <option value="lowestRated">Lowest Rated</option>
         </select>
       </div>
 
