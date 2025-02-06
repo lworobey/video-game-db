@@ -7,7 +7,7 @@ const router = express.Router();  // Use router, not app instance
 
 // Middleware for sessions and Passport
 router.use(session({
-  secret: process.env.SESSION_SECRET || 'your-secret-key',  // Provide a secret key here
+  secret: process.env.JWT_SECRET,
   resave: false,
   saveUninitialized: true,
 }));
