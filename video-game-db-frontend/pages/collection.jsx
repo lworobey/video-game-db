@@ -27,14 +27,12 @@ const Collection = ({ setSearchResults }) => {
         return;
       }
 
-
-        const username = localStorage.getItem("username");
-        const response = await axios.get(`http://localhost:3001/api/collections?username=${username}`, { //attribute a collection to the logged in user
-          headers: {
-            Authorization: `Bearer ${token}` //make sure it is the user that is getting their collection
-          }
-        });
-
+      const username = localStorage.getItem("username");
+      const response = await axios.get(`http://localhost:3001/api/collections?username=${username}`, { //attribute a collection to the logged in user
+        headers: {
+          Authorization: `Bearer ${token}` //make sure it is the user that is getting their collection
+        }
+      });
 
       console.log("Collection response data:", response.data);
       
@@ -56,7 +54,6 @@ const Collection = ({ setSearchResults }) => {
       });
 
       console.log("Games after mapping:", sortedGames);
-
 
       switch (sortOption) {
         case "az":
@@ -83,7 +80,6 @@ const Collection = ({ setSearchResults }) => {
           break;
         default:
           break;
-
       }
 
       setCollections(sortedGames);
@@ -94,6 +90,11 @@ const Collection = ({ setSearchResults }) => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchCollections();
+  }, [sortOption]);
+
   // Export the refresh function to the parent component
   useEffect(() => {
     // Add the refresh function to window object so Header can access it
@@ -105,7 +106,7 @@ const Collection = ({ setSearchResults }) => {
     };
   }, [sortOption]); // Include sortOption in dependencies since it's used in fetchCollections
 
-  const handleEdit = (collection) => {//edit text
+  const handleEdit = (collection) => { //edit text
     console.log('Editing collection:', collection);
     setEditCollection(collection.id);
     setNewName(collection.name);

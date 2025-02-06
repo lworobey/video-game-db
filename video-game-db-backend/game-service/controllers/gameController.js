@@ -209,40 +209,52 @@ const addToCollection = async (req, res) => {
             return res.status(400).json({ error: "Game ID and name are required" });
         }
 
+        // Find or create the game in the games collection
         const gameToAdd = await Game.findOneAndUpdate(
             { igdbId: id },
-            { name },
+            { 
+                name,
+                cover,
+                description,
+                releaseDate,
+                platforms,
+                genres 
+            },
             { upsert: true, new: true }
         );
-
-        const gameId = (await gameToAdd.save())._id;
+        console.log(`Game document created/updated:`, gameToAdd);
 
         const userTrack = await User.findOne({ username });
-        const findinCollection = await Collection.findOne({
-            userId: userTrack._id,
-        });
+        console.log(`Found user:`, userTrack);
 
-        if (findinCollection) {
-            const existingGame = await Collection.findOne({
-                "games.gameId": gameToAdd._id,
-            });
-            if (existingGame) {
-                console.log(`Game ${id} already exists in user's collection`);
-                return res.status(409).json({ error: "Game is already in your collection" });
-            }
+        if (!userTrack) {
+            return res.status(404).json({ error: "User not found" });
         }
 
-        const userId = userTrack._id;
+        // Check if the game is already in the user's collection specifically
+        const existingGame = await Collection.findOne({
+            userId: userTrack._id,
+            "games.gameId": gameToAdd._id
+        });
+        console.log(`Existing game check result:`, existingGame);
+
+        if (existingGame) {
+            console.log(`Game ${id} already exists in user's collection`);
+            return res.status(409).json({ error: "Game is already in your collection" });
+        }
+
+        // Add the game to the user's collection
         const userCollection = await Collection.findOneAndUpdate(
-            { userId },
+            { userId: userTrack._id },
             { $push: { games: { gameId: gameToAdd._id } } },
             { upsert: true, new: true }
         );
 
-        console.log(`Added game ${name} (${id}) to collection`);
-        res.status(201).json(gameId);
+        console.log(`Added game ${name} (${id}) to collection for user ${username}`);
+        res.status(201).json(gameToAdd._id);
     } catch (error) {
         console.error("Error adding game to collection:", error);
+        console.error("Full error details:", error);
         res.status(500).json({ error: "Failed to add game to collection" });
     }
 };
@@ -292,21 +304,34 @@ const updateCollection = async (req, res) => {
 const deleteCollection = async (req, res) => {
     try {
         const { id } = req.params;
-        console.log(`Attempting to delete game ${id} from collection`);
+        const { username } = req.query;
+        console.log(`Attempting to delete game ${id} from collection for user ${username}`);
+
+        if (!username) {
+            return res.status(400).json({ error: "Username is required" });
+        }
+
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
 
         const result = await Collection.findOneAndUpdate(
-            { "games._id": id },
+            { 
+                userId: user._id,
+                "games._id": id 
+            },
             { $pull: { games: { _id: id } } },
             { new: true }
         );
 
         if (!result) {
-            console.error(`Game ${id} not found in collection`);
-            return res.status(404).json({ error: "Game not found in collections" });
+            console.error(`Game ${id} not found in ${username}'s collection`);
+            return res.status(404).json({ error: "Game not found in your collection" });
         }
 
-        console.log(`Successfully removed game ${id} from collection`);
-        res.status(200).json({ message: "Game removed from collections" });
+        console.log(`Successfully removed game ${id} from ${username}'s collection`);
+        res.status(200).json({ message: "Game removed from your collection" });
     } catch (error) {
         console.error("Error deleting from collection:", error);
         res.status(500).json({ error: "Failed to delete from collection" });

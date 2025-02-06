@@ -61,9 +61,9 @@ const Header = ({ toggleDarkMode }) => {
           }
         }
       );
-      console.log("Fetched user collections:", response.data);
+      console.log("Collection response data:", response.data);
       setCollections(response.data.map(game => ({
-        id: game.gameId.igdbId, // Use the IGDB ID for comparison
+        id: game.gameId.igdbId, // Use igdbId instead of _id
         ...game
       })));
     } catch (error) {
@@ -89,7 +89,7 @@ const Header = ({ toggleDarkMode }) => {
 
   // Check if a game is already in the collection
   const isGameInCollection = (gameId) => {
-    const exists = collections.some((game) => game.id === gameId);
+    const exists = collections.some((game) => game.gameId?.igdbId === gameId);
     console.log(`Checking if game ${gameId} is in collection:`, exists);
     return exists;
   };
@@ -117,7 +117,7 @@ const Header = ({ toggleDarkMode }) => {
       }
 
       const response = await axios.post(
-        `${import.meta.env.VITE_GAME_SERVICE_API}/collections`,
+        `http://localhost:3001/api/collections`,
         {
           id: game.id,
           name: game.name,
@@ -239,8 +239,8 @@ const Header = ({ toggleDarkMode }) => {
                       onClick={() => handleAddToCollection(game)}
                       disabled={isGameInCollection(game.id)} // Disable button if game is already in collection
                     >
-                      {isGameInCollection(game.id) ? "✔ Added" : "+"} 
-                    </button> {/*check mark if game is in collection, and plus sign if it has not been added*/}
+                      {isGameInCollection(game.id) ? "✔ Added" : "+"} {/*check mark if game is in collection, and plus sign if it has not been added*/}
+                    </button>
                   </li>
                 ))}
               </ul>
