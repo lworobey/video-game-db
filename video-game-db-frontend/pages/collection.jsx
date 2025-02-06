@@ -27,12 +27,14 @@ const Collection = ({ setSearchResults }) => {
         return;
       }
 
-      const username = localStorage.getItem("username");
-      const response = await axios.get(`http://localhost:3001/api/collections?username=${username}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+
+        const username = localStorage.getItem("username");
+        const response = await axios.get(`http://localhost:3001/api/collections?username=${username}`, { //attribute a collection to the logged in user
+          headers: {
+            Authorization: `Bearer ${token}` //make sure it is the user that is getting their collection
+          }
+        });
+
 
       console.log("Collection response data:", response.data);
       
@@ -54,6 +56,7 @@ const Collection = ({ setSearchResults }) => {
       });
 
       console.log("Games after mapping:", sortedGames);
+
 
       switch (sortOption) {
         case "az":
@@ -80,6 +83,7 @@ const Collection = ({ setSearchResults }) => {
           break;
         default:
           break;
+
       }
 
       setCollections(sortedGames);
@@ -90,11 +94,6 @@ const Collection = ({ setSearchResults }) => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchCollections();
-  }, [sortOption]);
-
   // Export the refresh function to the parent component
   useEffect(() => {
     // Add the refresh function to window object so Header can access it
@@ -106,7 +105,7 @@ const Collection = ({ setSearchResults }) => {
     };
   }, [sortOption]); // Include sortOption in dependencies since it's used in fetchCollections
 
-  const handleEdit = (collection) => {
+  const handleEdit = (collection) => {//edit text
     console.log('Editing collection:', collection);
     setEditCollection(collection.id);
     setNewName(collection.name);
@@ -118,7 +117,7 @@ const Collection = ({ setSearchResults }) => {
     }); // Convert timePlayed (in seconds) to hours, minutes, and seconds
   };
 
-  const handleUpdate = async (collectionId) => {
+  const handleUpdate = async (collectionId) => { //save updates
     try {
       console.log('Updating collection:', collectionId);
       const timePlayedInSeconds = 
@@ -167,7 +166,7 @@ const Collection = ({ setSearchResults }) => {
       const token = localStorage.getItem("jwt_token");
       
       await axios.delete(
-        `http://localhost:3001/api/collections/${collectionId}`,
+        `http://localhost:3001/api/collections/${collectionId}`, //being handled in a backend route
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -194,7 +193,7 @@ const Collection = ({ setSearchResults }) => {
     }
   };
 
-  const handleTimeChange = (field, value) => {
+  const handleTimeChange = (field, value) => { //handles edit field of time
     // Handle empty input
     if (value === '' || isNaN(value)) {
       setNewTimePlayed(prev => ({
@@ -235,7 +234,7 @@ const Collection = ({ setSearchResults }) => {
     }
   };
 
-  const formatTime = (seconds) => {
+  const formatTime = (seconds) => { //loading time in hours, minutes, and seconds from database
     if (!seconds) return '0h 0m 0s';
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);

@@ -239,8 +239,8 @@ const Header = ({ toggleDarkMode }) => {
                       onClick={() => handleAddToCollection(game)}
                       disabled={isGameInCollection(game.id)} // Disable button if game is already in collection
                     >
-                      {isGameInCollection(game.id) ? "✔ Added" : "+"}
-                    </button>
+                      {isGameInCollection(game.id) ? "✔ Added" : "+"} 
+                    </button> {/*check mark if game is in collection, and plus sign if it has not been added*/}
                   </li>
                 ))}
               </ul>
