@@ -4,13 +4,12 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const gameRoutes = require('./routes/gameRoutes');
 
-
+const PORT = process.env.PORT || 3001;
 const app = express();
 
 // Middleware
 app.use(express.json());
 app.use(cors({
-  origin: 'http://localhost:5173', // Frontend URL
   credentials: true // Allow credentials
 }));
 
@@ -38,7 +37,7 @@ mongoose.connect(process.env.MONGODB_URI)
 .then(() => console.log('Connected to MongoDB'))
 .catch(err => console.error('MongoDB connection error:', err));
 
-const PORT = process.env.PORT || 3001;
+
 app.listen(PORT, () => {
   console.log(`Game Service is running on port http://localhost:${PORT}`);
 });
