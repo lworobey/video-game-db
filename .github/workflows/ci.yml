@@ -9,69 +9,38 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+    environment: development
     steps:
     - uses: actions/checkout@v4
     
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-
     - name: Create env files
       run: |
-        # Frontend .env
-        echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" > video-game-db-frontend/.env
-        echo "VITE_GAME_SERVICE_URL=${{ secrets.VITE_GAME_SERVICE_URL }}" >> video-game-db-frontend/.env
-        
-        # Auth Service .env
-        echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" > video-game-db-backend/auth-service/.env
-        echo "DISCORD_CLIENT_ID=${{ secrets.DISCORD_CLIENT_ID }}" >> video-game-db-backend/auth-service/.env
-        echo "DISCORD_CLIENT_SECRET=${{ secrets.DISCORD_CLIENT_SECRET }}" >> video-game-db-backend/auth-service/.env
-        echo "DISCORD_REDIRECT_URI=${{ secrets.DISCORD_REDIRECT_URI }}" >> video-game-db-backend/auth-service/.env
-        echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> video-game-db-backend/auth-service/.env
-        echo "PORT=3000" >> video-game-db-backend/auth-service/.env
-        
-        # Game Service .env
-        echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" > video-game-db-backend/game-service/.env
-        echo "CLIENT_ID=${{ secrets.IGDB_CLIENT_ID }}" >> video-game-db-backend/game-service/.env
-        echo "CLIENT_SECRET=${{ secrets.IGDB_CLIENT_SECRET }}" >> video-game-db-backend/game-service/.env
-        echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> video-game-db-backend/game-service/.env
-        echo "PORT=3001" >> video-game-db-backend/game-service/.env
-        
-        # Root .env for Docker Compose
-        echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" > video-game-db/.env
-        echo "AUTH_PORT=3000" >> video-game-db/.env
-        echo "GAME_PORT=3001" >> video-game-db/.env
-        echo "DISCORD_CLIENT_ID=${{ secrets.DISCORD_CLIENT_ID }}" >> video-game-db/.env
-        echo "DISCORD_CLIENT_SECRET=${{ secrets.DISCORD_CLIENT_SECRET }}" >> video-game-db/.env
-        echo "DISCORD_REDIRECT_URI=${{ secrets.DISCORD_REDIRECT_URI }}" >> video-game-db/.env
-        echo "CLIENT_ID=${{ secrets.IGDB_CLIENT_ID }}" >> video-game-db/.env
-        echo "CLIENT_SECRET=${{ secrets.IGDB_CLIENT_SECRET }}" >> video-game-db/.env
-        echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> video-game-db/.env
-        echo "FRONTEND_URL=http://localhost:5173" >> video-game-db/.env
-        
-    - name: Install Dependencies
-      run: |
-        cd video-game-db-frontend
-        npm install
-        cd ../video-game-db-backend/auth-service
-        npm install
-        cd ../game-service
-        npm install
-        
-    - name: Run Tests
-      run: |
-        cd video-game-db-frontend
-        npm run test
-        cd ../video-game-db-backend/auth-service
-        npm run test
-        cd ../game-service
-        npm run test
+        # Create root .env for docker-compose
+        echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" > .env
+        echo "AUTH_PORT=3000" >> .env
+        echo "GAME_PORT=3001" >> .env
+        echo "DISCORD_CLIENT_ID=${{ secrets.DISCORD_CLIENT_ID }}" >> .env
+        echo "DISCORD_CLIENT_SECRET=${{ secrets.DISCORD_CLIENT_SECRET }}" >> .env
+        echo "DISCORD_REDIRECT_URI=${{ secrets.DISCORD_REDIRECT_URI }}" >> .env
+        echo "CLIENT_ID=${{ secrets.IGDB_CLIENT_ID }}" >> .env
+        echo "CLIENT_SECRET=${{ secrets.IGDB_CLIENT_SECRET }}" >> .env
+        echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+        echo "FRONTEND_URL=http://localhost:5173" >> .env
 
-  docker:
+    - name: Build and test
+      run: |
+        docker-compose build
+        docker-compose up -d
+        sleep 30  # Wait for services to start
+        chmod +x test_api.sh
+        ./test_api.sh
+        docker-compose down
+
+  deploy:
     needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
+    environment: production
     
     steps:
     - uses: actions/checkout@v4
@@ -79,22 +48,13 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
       
-    - name: Build and test with Docker Compose
-      run: |
-        docker-compose -f docker-compose.yaml build
-        docker-compose -f docker-compose.yaml up -d
-        sleep 30  # Wait for services to start
-        chmod +x test_api.sh
-        ./test_api.sh
-        docker-compose down
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    # Add this if you want to push to Docker Hub
-    # - name: Login to Docker Hub
-    #   uses: docker/login-action@v3
-    #   with:
-    #     username: ${{ secrets.DOCKERHUB_USERNAME }}
-    #     password: ${{ secrets.DOCKERHUB_TOKEN }}
-    
-    # - name: Push images
-    #   run: |
-    #     docker-compose push 
+    - name: Build and push
+      run: |
+        docker-compose build
+        docker-compose push 
