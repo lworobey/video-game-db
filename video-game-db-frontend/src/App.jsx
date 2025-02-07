@@ -3,7 +3,7 @@ import Login from '../pages/Login';
 import Collection from '../pages/collection';
 import Home from '../pages/Home';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Header from '../components/Header/header';
+import Header from '../components/Header/Header'
 import { useState, useEffect } from 'react';
 
 function App() {
