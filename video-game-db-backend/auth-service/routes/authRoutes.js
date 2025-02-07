@@ -3,9 +3,8 @@ const session = require('express-session');
 const passport = require('passport');
 const authController = require('../controllers/authController');
 
-const router = express.Router();  // Use router, not app instance
+const router = express.Router();  
 
-// Middleware for sessions and Passport
 router.use(session({
   secret: process.env.JWT_SECRET,
   resave: false,
@@ -15,8 +14,8 @@ router.use(session({
 router.use(passport.initialize());
 router.use(passport.session());
 
-// Routes
+
 router.get('/login', authController.login);  // Redirect to Discord OAuth login
 router.get('/callback', authController.callback);  // Callback to handle response from Discord
 
-module.exports = router;  // Export router for use in server.js
+module.exports = router;  

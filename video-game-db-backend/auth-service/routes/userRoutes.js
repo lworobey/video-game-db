@@ -5,7 +5,6 @@ const router = express.Router();
 // Route to fetch user data, protected by JWT middleware
 router.get('/user', authenticateJWT, async (req, res) => {
   try {
-    // The user is available from the `req.user` object due to the JWT middleware
     res.json({
       username: req.user.username
     });

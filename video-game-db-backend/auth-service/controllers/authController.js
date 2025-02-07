@@ -37,7 +37,7 @@ const authController = {
 
     try {
       console.log('Attempting to exchange code for access token...');
-      // Step 1: Exchange the code for an access token from Discord
+      // Exchange the code for an access token from Discord
       const tokenResponse = await axios.post(
         'https://discord.com/api/oauth2/token',
         qs.stringify({
@@ -51,19 +51,19 @@ const authController = {
       );
 
       const { access_token } = tokenResponse.data;
-      console.log("Access token received from Discord:", access_token); // Log the access token
+      console.log("Access token received from Discord:", access_token); 
 
       console.log('Fetching user data from Discord API...');
-      // Step 2: Fetch user info from Discord
+      // Fetch user info from Discord
       const userResponse = await axios.get('https://discord.com/api/users/@me', {
         headers: { Authorization: `Bearer ${access_token}` }
       });
 
       const userData = userResponse.data;
-      console.log("User data fetched from Discord:", userData); // Log the user data
+      console.log("User data fetched from Discord:", userData); 
 
       console.log('Checking if user exists in database...');
-      // Step 3: Check if user exists in DB, otherwise create a new user
+      // Check if user exists in DB, otherwise create a new user
       let user = await User.findOne({ discordId: userData.id });
       if (!user) {
         console.log('Creating new user in database...');
@@ -80,7 +80,7 @@ const authController = {
       }
 
       console.log('Generating JWT token...');
-      // Step 4: Generate JWT token for the user
+      // Generate JWT token for the user
       const token = jwt.sign(
         { discordId: user.discordId, username: user.username },
         process.env.JWT_SECRET,
@@ -88,7 +88,7 @@ const authController = {
       );
       console.log("JWT token generated for user:", token); // Log the generated JWT token
 
-      // Step 5: Store the token in the session (for persistence)
+      // Store the token in the session (for persistence)
       req.session.token = token;
       console.log("Session token stored successfully:", req.session.token); // Log the session token
 

@@ -7,13 +7,13 @@ const gameRoutes = require('./routes/gameRoutes');
 const PORT = process.env.PORT || 3001;
 const app = express();
 
-// Middleware
+
 app.use(express.json());
 app.use(cors({
-  credentials: true // Allow credentials
+  credentials: true 
 }));
 
-// Request logging middleware
+
 app.use((req, res, next) => {
     console.log(`${req.method} ${req.originalUrl}  - Request received`);
   next();
@@ -23,7 +23,6 @@ app.use((req, res, next) => {
 app.use('/api', gameRoutes);
 
 
-// server.js
 app.get('/api/user', (req, res) => {
     if (req.session.username) {
         return res.json({ username: req.session.username });
