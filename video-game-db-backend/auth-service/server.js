@@ -10,9 +10,9 @@ const app = express();
 
 // Middleware setup
 app.use(cors({
-  credentials: true // Allow credentials
+  credentials: true 
 }));
-app.use(express.json());  // Parse JSON request bodies
+app.use(express.json());  
 
 // Request logging middleware
 app.use((req, res, next) => {
@@ -29,7 +29,6 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
-// MongoDB connection
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => console.log("MongoDB connected"))

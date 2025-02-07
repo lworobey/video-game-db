@@ -36,7 +36,7 @@ const fetchNewReleases = async (req, res) => {
       method: "POST",
       headers: {
         Accept: "application/json",
-        "Client-ID": process.env.CLIENT_ID,
+        "Client-ID": process.env.TWITCH_CLIENT_ID,
         Authorization: `Bearer ${token}`,
       },
       data: `fields category,checksum,created_at,date,game,human,m,platform,region,status,updated_at,y;
@@ -54,7 +54,7 @@ const fetchNewReleases = async (req, res) => {
       method: "POST",
       headers: {
         Accept: "application/json",
-        "Client-ID": process.env.CLIENT_ID,
+        "Client-ID": process.env.TWITCH_CLIENT_ID,
         Authorization: `Bearer ${token}`,
       },
       data: `fields name,cover.url,genres.name,rating,first_release_date;
@@ -124,7 +124,7 @@ const searchGames = async (req, res) => {
 
     console.log(`Searching for games with query: "${query}"`);
     const token = await getCachedToken();
-    const clientId = process.env.CLIENT_ID;
+    const clientId = process.env.TWITCH_CLIENT_ID;
 
     const response = await axios.post(
       "https://api.igdb.com/v4/games",
@@ -241,11 +241,7 @@ const addToCollection = async (req, res) => {
       { igdbId: id },
       {
         name,
-        cover,
-        description,
-        releaseDate,
         platforms,
-        genres,
       },
       { upsert: true, new: true }
     );
