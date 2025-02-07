@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { NavLink } from "react-router-dom";
 import axios from "axios";
-import "./header.css";
+import "./Header.css";
 import { FaDiscord, FaHome } from "react-icons/fa";
 
 const Header = ({ toggleDarkMode }) => {
@@ -25,7 +25,6 @@ const Header = ({ toggleDarkMode }) => {
       console.log("Found JWT token and username...");
       if (storedUsername) {
         setUsername(storedUsername);
-        // Fetch user's collections
         fetchUserCollections(storedUsername, token);
       }
       
@@ -50,7 +49,7 @@ const Header = ({ toggleDarkMode }) => {
     }
   }, []);
 
-  // Fetch user's collections
+
   const fetchUserCollections = async (username, token) => {
     try {
       const response = await axios.get(
@@ -63,7 +62,7 @@ const Header = ({ toggleDarkMode }) => {
       );
       console.log("Collection response data:", response.data);
       setCollections(response.data.map(game => ({
-        id: game.game.igdbId, // Use igdbId from game reference
+        id: game.game.igdbId, 
         ...game
       })));
     } catch (error) {
@@ -71,7 +70,7 @@ const Header = ({ toggleDarkMode }) => {
     }
   };
 
-  // Handle search input and fetch results
+
   const handleSearch = async () => {
     if (!searchQuery) return;
     console.log("Searching for games with query:", searchQuery);
