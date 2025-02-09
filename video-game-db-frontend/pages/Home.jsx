@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import './home.css'; // Ensure you have the correct styling
+import placeholderImage from '../src/assets/placeholder.png';  // Add this import
 
 const Home = () => {
   const [newReleases, setNewReleases] = useState([]);
-  const [topRated, setTopRated] = useState([]); // Placeholder for top-rated games
+  const [topRated, setTopRated] = useState([]);
 
   useEffect(() => {
     const fetchGames = async () => {
@@ -16,10 +17,10 @@ const Home = () => {
         console.log('Successfully fetched new releases:', newReleasesResponse.data);
         setNewReleases(newReleasesResponse.data);
 
-        // Fetch Top Rated Games (placeholder for future DB logic)
+        // Fetch Top Rated Games from our database
         const topRatedResponse = await axios.get('http://localhost:3001/api/top-rated');
         console.log('Successfully fetched top rated games:', topRatedResponse.data);
-        setTopRated(topRatedResponse.data);
+        setTopRated(topRatedResponse.data.data); // Note: response includes data in { data: [...] }
       } catch (error) {
         console.error('Error fetching games:', error);
         console.error('Error details:', error.response?.data || error.message);
@@ -63,33 +64,35 @@ const Home = () => {
         )}
       </div>
 
-      {/* Placeholder for Top Rated Games */}
+      {/* Updated Top Rated Games Section */}
       <div className="category-section">
         <h2>Top Rated</h2>
         {topRated.length > 0 ? (
-          <ul className="game-list">
+          <div className="games-list">
             {topRated.map((game) => {
               console.log('Rendering top rated game:', game.name);
               return (
-                <li key={game.id} className="game-item">
+                <div key={game._id} className="game-item">
                   <img 
-                    src={game.cover?.url} 
+                    src={game.cover?.url || placeholderImage} 
                     alt={game.name} 
                     className="game-image" 
                     onError={(e) => {
                       console.error(`Failed to load image for game: ${game.name}`);
-                      e.target.src = 'fallback-image-url';
+                      e.target.src = placeholderImage;
                     }}
                   />
                   <div className="game-details">
                     <h3>{game.name}</h3>
-                    <p>Genres: {game.genres?.map(genre => genre.name).join(', ')}</p>
-                    <p>Rating: {game.rating || 'N/A'}</p>
+                    <p>Rating: {game.rating ? game.rating.toFixed(1) : 'N/A'}</p>
+                    {game.platforms && (
+                      <p>Platforms: {Array.isArray(game.platforms) ? game.platforms.join(', ') : game.platforms}</p>
+                    )}
                   </div>
-                </li>
+                </div>
               );
             })}
-          </ul>
+          </div>
         ) : (
           <p>Loading top rated games...</p>
         )}

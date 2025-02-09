@@ -107,7 +107,9 @@ const fetchNewReleases = async (req, res) => {
 const fetchTopRated = async (req, res) => {
   try {
     console.log("Fetching top rated games...");
-    res.json([]);
+    const topRated = await Game.find({}).sort({ rating: -1 }).limit(10);
+
+    res.status(200).json({ data: topRated });
   } catch (error) {
     console.error("Error fetching top rated games:", error);
     res.status(500).json({ error: "Failed to fetch top rated games" });
@@ -336,15 +338,18 @@ const updateCollection = async (req, res) => {
     if (updatedGame && updatedGame.game) {
       // Find all ratings for this game across all collections
       const allCollections = await Collection.find({
-        "games.game": updatedGame.game._id
+        "games.game": updatedGame.game._id,
       });
 
       let totalRating = 0;
       let ratingCount = 0;
 
-      allCollections.forEach(collection => {
-        collection.games.forEach(game => {
-          if (game.game.toString() === updatedGame.game._id.toString() && game.userRating) {
+      allCollections.forEach((collection) => {
+        collection.games.forEach((game) => {
+          if (
+            game.game.toString() === updatedGame.game._id.toString() &&
+            game.userRating
+          ) {
             totalRating += game.userRating;
             ratingCount++;
           }
@@ -354,12 +359,16 @@ const updateCollection = async (req, res) => {
       // Update the game's average rating
       if (ratingCount > 0) {
         const averageRating = totalRating / ratingCount;
-        console.log(`Average rating calculation: total ${totalRating} / count ${ratingCount} = ${averageRating}`);
+        console.log(
+          `Average rating calculation: total ${totalRating} / count ${ratingCount} = ${averageRating}`
+        );
         await Game.findByIdAndUpdate(updatedGame.game._id, {
           rating: averageRating,
-          lastUpdated: Date.now()
+          lastUpdated: Date.now(),
         });
-        console.log(`Updated average rating for game ${updatedGame.game._id} to ${averageRating}`);
+        console.log(
+          `Updated average rating for game ${updatedGame.game._id} to ${averageRating}`
+        );
       }
     }
 
@@ -391,16 +400,20 @@ const deleteCollection = async (req, res) => {
     // First get the collection to find the game's igdbId
     const collection = await Collection.findOne({
       user: user._id,
-      "games._id": id
+      "games._id": id,
     }).populate("games.game");
 
     if (!collection) {
       console.error(`Game ${id} not found in ${username}'s collection`);
-      return res.status(404).json({ error: "Game not found in your collection" });
+      return res
+        .status(404)
+        .json({ error: "Game not found in your collection" });
     }
 
     // Get the game's igdbId before removing it
-    const gameToRemove = collection.games.find(game => game._id.toString() === id);
+    const gameToRemove = collection.games.find(
+      (game) => game._id.toString() === id
+    );
     const igdbId = gameToRemove.game.igdbId;
 
     // Now remove the game from the user's collection
@@ -415,20 +428,25 @@ const deleteCollection = async (req, res) => {
 
     if (!result) {
       console.error(`Game ${id} not found in ${username}'s collection`);
-      return res.status(404).json({ error: "Game not found in your collection" });
+      return res
+        .status(404)
+        .json({ error: "Game not found in your collection" });
     }
 
     // Recalculate average rating after removal
     const allCollections = await Collection.find({
-      "games.game": gameToRemove.game._id
+      "games.game": gameToRemove.game._id,
     });
 
     let totalRating = 0;
     let ratingCount = 0;
 
-    allCollections.forEach(collection => {
-      collection.games.forEach(game => {
-        if (game.game.toString() === gameToRemove.game._id.toString() && game.userRating) {
+    allCollections.forEach((collection) => {
+      collection.games.forEach((game) => {
+        if (
+          game.game.toString() === gameToRemove.game._id.toString() &&
+          game.userRating
+        ) {
           totalRating += game.userRating;
           ratingCount++;
         }
@@ -438,19 +456,25 @@ const deleteCollection = async (req, res) => {
     // Update the game's average rating
     if (ratingCount > 0) {
       const averageRating = totalRating / ratingCount;
-      console.log(`After removal - Average rating calculation: total ${totalRating} / count ${ratingCount} = ${averageRating}`);
+      console.log(
+        `After removal - Average rating calculation: total ${totalRating} / count ${ratingCount} = ${averageRating}`
+      );
       await Game.findByIdAndUpdate(gameToRemove.game._id, {
         rating: averageRating,
-        lastUpdated: Date.now()
+        lastUpdated: Date.now(),
       });
-      console.log(`Updated average rating for game ${igdbId} to ${averageRating}`);
+      console.log(
+        `Updated average rating for game ${igdbId} to ${averageRating}`
+      );
     } else {
       // If no ratings left, set rating to null
       await Game.findByIdAndUpdate(gameToRemove.game._id, {
         rating: null,
-        lastUpdated: Date.now()
+        lastUpdated: Date.now(),
       });
-      console.log(`No ratings left for game ${igdbId}, setting average rating to null`);
+      console.log(
+        `No ratings left for game ${igdbId}, setting average rating to null`
+      );
     }
 
     console.log(
