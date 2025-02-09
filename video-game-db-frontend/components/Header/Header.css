@@ -100,33 +100,50 @@ nav {
 .search-item {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding: 10px;
   border-bottom: 1px solid #eee;
+  gap: 10px;
 }
 
 .search-item img {
-  margin-left: 10px;
-  width: 40px;
-  height: auto;
   border-radius: 4px;
+}
+
+.game-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.average-rating {
+  color: #666;
+  font-size: 0.9em;
+}
+
+body.dark .average-rating {
+  color: #ccc;
 }
 
 .add-button {
-  margin-left: auto;
-  padding: 5px 10px;
   background-color: #4CAF50;
   color: white;
   border: none;
-  cursor: pointer;
   border-radius: 4px;
-  font-size: 0.8rem;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
-.add-button:hover {
-  background-color: #45a049;
+.add-button:hover:not(:disabled) {
+  background-color: #4CAF50;
 }
 
+.add-button:disabled {
+  background-color: #4CAF50;
+  opacity: 0.7;
+  cursor: not-allowed;
+}
 
 .home-button {
   background-color: hsl(258, 82%, 52%);

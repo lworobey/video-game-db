@@ -141,7 +141,19 @@ const searchGames = async (req, res) => {
     );
 
     console.log(`Found ${response.data.length} games matching query`);
-    res.json(response.data);
+
+    // For each IGDB game, check if we have it in our database
+    const gamesWithRatings = await Promise.all(
+      response.data.map(async (igdbGame) => {
+        const dbGame = await Game.findOne({ igdbId: igdbGame.id });
+        return {
+          ...igdbGame,
+          game: dbGame // Add our database game info if it exists
+        };
+      })
+    );
+
+    res.json(gamesWithRatings);
   } catch (error) {
     console.error("Error searching games:", error);
     res.status(500).json({ error: "Failed to fetch games" });
