@@ -233,13 +233,18 @@ const Header = ({ toggleDarkMode }) => {
                     {game.cover && (
                       <img src={game.cover.url} alt={game.name} width="50" />
                     )}
-                    <button
-                      className="add-button"
-                      onClick={() => handleAddToCollection(game)}
-                      disabled={isGameInCollection(game.id)} // Disable button if game is already in collection
-                    >
-                      {isGameInCollection(game.id) ? "✔ Added" : "+"} {/*check mark if game is in collection, and plus sign if it has not been added*/}
-                    </button>
+                    <div className="game-actions">
+                      <span className="average-rating">
+                        Rating: {game.game?.rating ? game.game.rating.toFixed(1) : 'N/A'}
+                      </span>
+                      <button
+                        className="add-button"
+                        onClick={() => handleAddToCollection(game)}
+                        disabled={isGameInCollection(game.id)}
+                      >
+                        {isGameInCollection(game.id) ? "✔ Added" : "+"}
+                      </button>
+                    </div>
                   </li>
                 ))}
               </ul>
