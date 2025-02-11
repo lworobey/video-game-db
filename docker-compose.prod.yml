@@ -63,7 +63,7 @@ services:
       - DISCORD_CLIENT_SECRET=${DISCORD_CLIENT_SECRET}
       - JWT_SECRET=${JWT_SECRET}
       - DISCORD_REDIRECT_URI=${DISCORD_REDIRECT_URI}
-      - FRONTEND_URL=http://frontend:80
+      - FRONTEND_URL=${FRONTEND_URL}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
