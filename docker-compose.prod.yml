@@ -62,7 +62,7 @@ services:
       - DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}
       - DISCORD_CLIENT_SECRET=${DISCORD_CLIENT_SECRET}
       - JWT_SECRET=${JWT_SECRET}
-      - DISCORD_REDIRECT_URI=http://auth-service:3000/auth/callback
+      - DISCORD_REDIRECT_URI=${DISCORD_REDIRECT_URI}
       - FRONTEND_URL=http://frontend:80
     restart: unless-stopped
     healthcheck:
