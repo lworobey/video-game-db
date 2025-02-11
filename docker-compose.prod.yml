@@ -4,14 +4,14 @@ services:
       context: ./video-game-db-frontend
       dockerfile: Dockerfile.prod
       args:
-        - VITE_API_URL=http://auth-service:3000
-        - VITE_GAME_SERVICE_URL=http://game-service:3001
+        - VITE_API_URL=${VITE_API_URL}
+        - VITE_GAME_SERVICE_URL=${VITE_GAME_SERVICE_URL}
     image: lukeworobey/vgdb-frontend:latest
     ports:
       - "80:80"
     environment:
-      - VITE_API_URL=http://auth-service:3000
-      - VITE_GAME_SERVICE_URL=http://game-service:3001
+      - VITE_API_URL=${VITE_API_URL}
+      - VITE_GAME_SERVICE_URL=${VITE_GAME_SERVICE_URL}
       - NODE_ENV=production
     depends_on:
       - auth-service
