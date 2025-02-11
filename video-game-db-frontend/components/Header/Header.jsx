@@ -53,7 +53,7 @@ const Header = ({ toggleDarkMode }) => {
   const fetchUserCollections = async (username, token) => {
     try {
       const response = await axios.get(
-        `http://localhost:3001/api/collections?username=${username}`,
+        `${import.meta.env.VITE_GAME_SERVICE_URL}/api/collections?username=${username}`,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -76,7 +76,7 @@ const Header = ({ toggleDarkMode }) => {
     console.log("Searching for games with query:", searchQuery);
     try {
       const response = await axios.get(
-        `http://localhost:3001/api/search?query=${searchQuery}`
+        `${import.meta.env.VITE_GAME_SERVICE_URL}/api/search?query=${searchQuery}`
       );
       console.log("Search results received:", response.data);
       setLocalSearchResults(response.data);
@@ -116,7 +116,7 @@ const Header = ({ toggleDarkMode }) => {
       }
 
       const response = await axios.post(
-        `http://localhost:3001/api/collections`,
+        `${import.meta.env.VITE_GAME_SERVICE_URL}/api/collections`,
         {
           id: game.id,
           name: game.name,

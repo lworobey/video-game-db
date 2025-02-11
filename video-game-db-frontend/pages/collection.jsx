@@ -28,7 +28,7 @@ const Collection = ({ setSearchResults }) => {
       }
 
       const username = localStorage.getItem("username");
-      const response = await axios.get(`http://localhost:3001/api/collections?username=${username}`, { //attribute a collection to the logged in user
+      const response = await axios.get(`${import.meta.env.VITE_GAME_SERVICE_URL}/api/collections?username=${username}`, { //attribute a collection to the logged in user
         headers: {
           Authorization: `Bearer ${token}` //make sure it is the user that is getting their collection
         }

@@ -13,12 +13,12 @@ const Home = () => {
         console.log('Fetching new releases and top rated games...');
         
         // Fetch New Releases (direct from IGDB API)
-        const newReleasesResponse = await axios.get('http://localhost:3001/api/new-releases');
+        const newReleasesResponse = await axios.get(`${import.meta.env.VITE_GAME_SERVICE_URL}/api/new-releases`);
         console.log('Successfully fetched new releases:', newReleasesResponse.data);
         setNewReleases(newReleasesResponse.data);
 
         // Fetch Top Rated Games from our database
-        const topRatedResponse = await axios.get('http://localhost:3001/api/top-rated');
+        const topRatedResponse = await axios.get(`${import.meta.env.VITE_GAME_SERVICE_URL}/api/top-rated`);
         console.log('Successfully fetched top rated games:', topRatedResponse.data);
         setTopRated(topRatedResponse.data.data); // Note: response includes data in { data: [...] }
       } catch (error) {
