@@ -10,6 +10,8 @@ services:
     ports:
       - "80:80"
     environment:
+      - VITE_API_URL=http://auth-service:3000
+      - VITE_GAME_SERVICE_URL=http://game-service:3001
       - NODE_ENV=production
     depends_on:
       - auth-service
@@ -34,8 +36,8 @@ services:
       - NODE_ENV=production
       - MONGODB_URI=${MONGODB_URI}
       - PORT=${GAME_PORT}
-      - CLIENT_ID=${CLIENT_ID}
-      - CLIENT_SECRET=${CLIENT_SECRET}
+      - TWITCH_CLIENT_ID=${TWITCH_CLIENT_ID}
+      - TWITCH_CLIENT_SECRET=${TWITCH_CLIENT_SECRET}
       - JWT_SECRET=${JWT_SECRET}
     restart: unless-stopped
     healthcheck:
