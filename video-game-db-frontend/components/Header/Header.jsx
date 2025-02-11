@@ -171,7 +171,7 @@ const Header = ({ toggleDarkMode }) => {
   // Handle login by redirecting to the OAuth route
   const handleLogin = () => {
     console.log("Redirecting user to Discord login...");
-    window.location.href = "http://localhost:3000/auth/login"; // Trigger OAuth login
+    window.location.href = `${import.meta.env.VITE_API_URL}/auth/login`; // Trigger OAuth login
   };
 
   // Handle logout by removing the JWT token from localStorage

@@ -136,7 +136,7 @@ const Collection = ({ setSearchResults }) => {
       console.log('Sending update with data:', updatedCollection);
       const token = localStorage.getItem("jwt_token");
       const response = await axios.put(
-        `http://localhost:3001/api/collections/${collectionId}`, 
+        `${import.meta.env.VITE_GAME_SERVICE_URL}/api/collections/${collectionId}`, 
         updatedCollection,
         {
           headers: {
@@ -168,7 +168,7 @@ const Collection = ({ setSearchResults }) => {
       const username = localStorage.getItem("username"); // Get username from storage
       
       await axios.delete(
-        `http://localhost:3001/api/collections/${collectionId}?username=${username}`, // Add username as query param from backend
+        `${import.meta.env.VITE_GAME_SERVICE_URL}/api/collections/${collectionId}?username=${username}`, // Add username as query param from backend
         {
           headers: {
             Authorization: `Bearer ${token}`

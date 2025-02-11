@@ -7,7 +7,7 @@ const Login = () => {
   const handleLogin = () => {
     try {
       console.log('Attempting Discord login redirect...');
-      window.location.href = 'http://localhost:3000/auth/login';  //redirect to port 3000 auth login which handles discord login
+      window.location.href = `${import.meta.env.VITE_API_URL}/auth/login`;  //redirect to port 3000 auth login which handles discord login
     } catch (error) {
       console.error('Error during login redirect:', error);
     }
