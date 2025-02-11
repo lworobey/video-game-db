@@ -107,7 +107,9 @@ const fetchNewReleases = async (req, res) => {
 const fetchTopRated = async (req, res) => {
   try {
     console.log("Fetching top rated games...");
-    const topRated = await Game.find({}).sort({ rating: -1 }).limit(10);
+    const topRated = await Game.find({ rating: { $ne: null } })
+      .sort({ rating: -1 })
+      .limit(10);
 
     res.status(200).json({ data: topRated });
   } catch (error) {
