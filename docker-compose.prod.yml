@@ -4,8 +4,8 @@ services:
       context: ./video-game-db-frontend
       dockerfile: Dockerfile.prod
       args:
-        - VITE_API_URL=${VITE_API_URL}
-        - VITE_GAME_SERVICE_URL=${VITE_GAME_SERVICE_URL}
+        - VITE_API_URL=http://auth-service:3000
+        - VITE_GAME_SERVICE_URL=http://game-service:3001
     image: lukeworobey/vgdb-frontend:latest
     ports:
       - "80:80"
@@ -60,8 +60,8 @@ services:
       - DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}
       - DISCORD_CLIENT_SECRET=${DISCORD_CLIENT_SECRET}
       - JWT_SECRET=${JWT_SECRET}
-      - DISCORD_REDIRECT_URI=${DISCORD_REDIRECT_URI}
-      - FRONTEND_URL=${FRONTEND_URL}
+      - DISCORD_REDIRECT_URI=http://auth-service:3000/auth/callback
+      - FRONTEND_URL=http://frontend:80
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
