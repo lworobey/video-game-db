@@ -111,7 +111,40 @@ const fetchTopRated = async (req, res) => {
       .sort({ rating: -1 })
       .limit(10);
 
-    res.status(200).json({ data: topRated });
+    // Get IGDB token
+    const token = await getCachedToken();
+
+    // Get cover images for each game
+    const gamesWithCovers = await Promise.all(topRated.map(async (game) => {
+      try {
+        // Fetch cover from IGDB using game name
+        const response = await axios({
+          url: "https://api.igdb.com/v4/games",
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Client-ID": process.env.TWITCH_CLIENT_ID,
+            Authorization: `Bearer ${token}`,
+          },
+          data: `search "${game.name}"; fields name,cover.url; limit 1;`,
+        });
+
+        if (response.data && response.data[0] && response.data[0].cover) {
+          return {
+            ...game.toObject(),
+            cover: {
+              url: response.data[0].cover.url.replace("t_thumb", "t_cover_big").replace("//", "https://")
+            }
+          };
+        }
+        return game;
+      } catch (error) {
+        console.error(`Error fetching cover for ${game.name}:`, error);
+        return game;
+      }
+    }));
+
+    res.status(200).json({ data: gamesWithCovers });
   } catch (error) {
     console.error("Error fetching top rated games:", error);
     res.status(500).json({ error: "Failed to fetch top rated games" });
